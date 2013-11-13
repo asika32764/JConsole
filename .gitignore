@@ -11,7 +11,7 @@
 !jconsole/
 !.gitignore
 !console
-!README
+!README.md
 
 # PHPUnit #
 phpunit.xml
