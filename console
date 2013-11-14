@@ -47,11 +47,9 @@ require_once JPATH_CONFIGURATION . '/configuration.php';
 // System configuration.
 $config = new JConfig;
 
-use JConsole\Application\Console;
+use JConsole\Application\JConsole;
 
-$console = new Console;
+$console = new JConsole;
 
 $console->setDescription(null)
 	->execute();
-
-exit(0);
