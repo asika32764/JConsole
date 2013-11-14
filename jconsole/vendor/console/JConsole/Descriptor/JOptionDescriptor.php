@@ -1,6 +1,6 @@
 <?php
 
-namespace Descriptor;
+namespace JConsole\Descriptor;
 
 use Joomla\Console\Descriptor\Text\TextOptionDescriptor;
 use Joomla\Console\Option\Option;

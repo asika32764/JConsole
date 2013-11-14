@@ -1,15 +1,16 @@
 <?php
 
 
-namespace Console;
+namespace JConsole\Application;
 
-use Descriptor\JOptionDescriptor;
+
+use JConsole\Descriptor\JOptionDescriptor;
 use Joomla\Console\Command\DefaultCommand;
-use Joomla\Console\Console;
+use Joomla\Console\Console as JoomlaConsole;
 use Joomla\Application\Cli\Output;
 use Joomla\Input;
 
-class JConsole extends Console
+class Console extends JoomlaConsole
 {
 	/**
 	 * Register default command.

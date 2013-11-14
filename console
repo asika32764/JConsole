@@ -34,11 +34,9 @@ require_once JPATH_LIBRARIES . '/cms.php';
 
 
 // Load Console libraries
-JLoader::registerNamespace('Joomla',  __DIR__ . '/jconsole/vendor/framework');
-JLoader::registerNamespace('Command', __DIR__ . '/jconsole/src');
-JLoader::registerNamespace('Console', __DIR__ . '/jconsole/src');
-JLoader::registerNamespace('Descriptor', __DIR__ . '/jconsole/src');
-JLoader::registerNamespace('Helper',  __DIR__ . '/jconsole/src');
+JLoader::registerNamespace('Joomla',   __DIR__ . '/jconsole/vendor/framework');
+JLoader::registerNamespace('JConsole', __DIR__ . '/jconsole/vendor/console');
+JLoader::registerNamespace('Command',  __DIR__ . '/jconsole/src');
 
 // If using Console, we need Psr package
 JLoader::registerNamespace('Psr', __DIR__ . '/jconsole/vendor/psr');
@@ -49,9 +47,9 @@ require_once JPATH_CONFIGURATION . '/configuration.php';
 // System configuration.
 $config = new JConfig;
 
-use Console\JConsole;
+use JConsole\Application\Console;
 
-$console = new JConsole;
+$console = new Console;
 
 $console->setDescription(null)
 	->execute();
