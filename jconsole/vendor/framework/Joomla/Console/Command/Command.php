@@ -45,7 +45,8 @@ class Command extends AbstractCommand
 	 */
 	public function execute()
 	{
-		if (count($this->input->args) && $this->input->args[0] != 'help' && $this->getOption('h'))
+		if (count($this->input->args) && $this->input->args[0] != 'help'
+			&& $this->getOption('h') && !$this->getParent())
 		{
 			array_unshift($this->input->args, 'help');
 		}
@@ -67,15 +68,18 @@ class Command extends AbstractCommand
 	 */
 	protected function doExecute()
 	{
+		$this->input->args = array($this->name);
+
 		$output = $this->application
 			->getDefaultCommand()
 			->getArgument('help')
-			->getDescriptor()
-			->describe($this);
+			->setInput($this->input)
+			->setOutput($this->output)
+			->execute();
 
 		$this->out($output);
 
-		return 0;
+		return;
 	}
 
 	/**

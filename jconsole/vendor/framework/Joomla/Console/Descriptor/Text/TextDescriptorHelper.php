@@ -36,16 +36,8 @@ class TextDescriptorHelper extends AbstractDescriptorHelper
 %s
 Usage:
   %s
-
-
-Options:
-
 {OPTIONS}
-
-Available commands:
-
 {COMMANDS}
-
 %s
 EOF;
 
@@ -71,7 +63,7 @@ EOF;
 			$optionDescriptor->addItem($option);
 		}
 
-		$render['option'] = $optionDescriptor->render();
+		$render['option'] = count($options) ? "\n\nOptions:\n\n" . $optionDescriptor->render() : '';
 
 		// Describe Commands
 		$commands          = $command->getArguments();
@@ -82,7 +74,7 @@ EOF;
 			$commandDescriptor->addItem($cmd);
 		}
 
-		$render['command'] = $commandDescriptor->render();
+		$render['command'] = count($commands) ? "\n\nAvailable commands:\n\n" . $commandDescriptor->render() : '';
 
 		// Render Help template
 		/** @var Console $console */
@@ -90,7 +82,7 @@ EOF;
 
 		if (!($console instanceof Console))
 		{
-			throw new \RuntimeException('Help descriptor need Console object in default command.');
+			throw new \RuntimeException(sprintf('Help descriptor need Console object in %s command.', get_class($command)));
 		}
 
 		$consoleName = $console->getName();

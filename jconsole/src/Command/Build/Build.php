@@ -2,25 +2,24 @@
 
 namespace Command\Build;
 
+use Command\Build\CheckPHP\CheckPHP;
+use Command\Build\Indexmaker\Indexmaker;
 use Joomla\Console\Command\Command;
 
 class Build extends Command
 {
-	public $name = 'build';
+	protected $name = 'build';
 
-	public $description = 'Example description.';
+	protected $description = 'Some useful tools for building system.';
+
+	public $isEnabled = true;
 
 	//        public $usage = 'example <command> [option]';
 
 	public function configure()
 	{
-		/*
-		$this->addArgument(new ExampleCommand)
-				->addOption(
-						'a',
-						0,
-						'desc'
-				);
-		*/
+		$this
+			->addArgument(new Indexmaker)
+			->addArgument(new CheckPHP);
 	}
 }

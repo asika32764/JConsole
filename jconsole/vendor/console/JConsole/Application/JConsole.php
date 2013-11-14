@@ -6,7 +6,6 @@ namespace JConsole\Application;
 
 use JConsole\Descriptor\JOptionDescriptor;
 use Joomla\Application\Cli\CliOutput;
-use Joomla\Console\Command\DefaultCommand;
 use Joomla\Console\Console as JoomlaConsole;
 use Joomla\Application\Cli\Output;
 use Joomla\Input;
@@ -43,8 +42,6 @@ class JConsole extends JoomlaConsole
 
 	protected function loadFirstlevelCommands()
 	{
-		$command = $this->defaultCommand;
-
 		// Find commands in cli
 		$dirs = new \DirectoryIterator(JPATH_BASE . '/cli/jconsole/src/Command');
 
@@ -61,7 +58,7 @@ class JConsole extends JoomlaConsole
 
 			if (class_exists($class))
 			{
-				$this->defaultCommand->addArgument(new $class);
+				$this->defaultCommand->addArgument(new $class(null, $this->input, $this->output));
 			}
 		}
 

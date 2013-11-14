@@ -10,6 +10,8 @@ class Sql extends Command
 
 	public $description = 'Example description.';
 
+	public $isEnabled = true;
+
 	//        public $usage = 'example <command> [option]';
 
 	public function configure()

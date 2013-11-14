@@ -48,8 +48,9 @@ require_once JPATH_CONFIGURATION . '/configuration.php';
 $config = new JConfig;
 
 use JConsole\Application\JConsole;
+use Joomla\Console\Output\Stdout;
 
-$console = new JConsole;
+$console = new JConsole(null, null, new Stdout);
 
 $console->setDescription(null)
 	->execute();

@@ -14,6 +14,7 @@ use Joomla\Application\Cli\Output;
 use Joomla\Console\Command\AbstractCommand;
 use Joomla\Console\Command\Command;
 use Joomla\Console\Command\DefaultCommand;
+use Joomla\Console\Command\HelpCommand;
 use Joomla\Input;
 use Joomla\Registry\Registry;
 
@@ -180,7 +181,8 @@ class Console extends AbstractCliApplication
 	{
 		$this->defaultCommand = new DefaultCommand(null, $this->input, $this->output);
 
-		$this->defaultCommand->setApplication($this);
+		$this->defaultCommand->setApplication($this)
+			->addArgument(new HelpCommand);
 
 		return $this;
 	}
