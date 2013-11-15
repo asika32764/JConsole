@@ -8,7 +8,7 @@ class CleanCache extends Command
 {
 	protected $name = 'clean-cache';
 
-	protected $description = 'Clear system cache.';
+	protected $description = 'Clean system cache.';
 
 	protected $usage = 'clean-cache <cmd><folder></cmd> <option>[option]</option>';
 
@@ -34,6 +34,8 @@ class CleanCache extends Command
 
 			return;
 		}
+
+		$this->out('Cleaning cache files...');
 
 		if ($path != realpath(JPATH_BASE . '/cache'))
 		{
