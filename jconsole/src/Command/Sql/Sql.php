@@ -3,6 +3,7 @@
 namespace Command\Sql;
 
 use Joomla\Console\Command\Command;
+use Symfony\Component\Yaml\Dumper as SymfonyYamlDumper;
 
 class Sql extends Command
 {
@@ -24,5 +25,16 @@ class Sql extends Command
 						'desc'
 				);
 		*/
+	}
+
+	protected function doExecute()
+	{
+		$dumper = new SymfonyYamlDumper;
+
+		$db = \JFactory::getDbo();
+
+		$table = $db->setQuery('SHOW FULL COLUMNS FROM #__content')->loadAssocList('Field');
+
+		echo $dumper->dump(json_decode(json_encode($table), true), 2, 0, false, true);
 	}
 }
