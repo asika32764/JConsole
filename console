@@ -26,20 +26,18 @@ if (!defined('_JDEFINES'))
 	require_once JPATH_BASE . '/includes/defines.php';
 }
 
+define('JPATH_CLI', __DIR__);
+
 // Get the framework.
 require_once JPATH_BASE . '/includes/framework.php';
 
 // Bootstrap the CMS libraries.
 require_once JPATH_LIBRARIES . '/cms.php';
 
+restore_exception_handler();
 
 // Load Console libraries
-JLoader::registerNamespace('Joomla',   __DIR__ . '/jconsole/vendor/framework');
-JLoader::registerNamespace('JConsole', __DIR__ . '/jconsole/vendor/console');
-JLoader::registerNamespace('Command',  __DIR__ . '/jconsole/src');
-
-// If using Console, we need Psr package
-JLoader::registerNamespace('Psr', __DIR__ . '/jconsole/vendor/psr');
+include_once JPATH_CLI . '/jconsole/vendor/autoload.php';
 
 // Import the configuration.
 require_once JPATH_CONFIGURATION . '/configuration.php';
