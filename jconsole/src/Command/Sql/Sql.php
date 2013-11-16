@@ -35,6 +35,10 @@ class Sql extends Command
 
 		$table = $db->setQuery('SHOW FULL COLUMNS FROM #__content')->loadAssocList('Field');
 
-		echo $dumper->dump(json_decode(json_encode($table), true), 2, 0, false, true);
+		$create = $db->setQuery('SHOW CREATE TABLE #__content')->loadAssocList();
+
+		print_r($create);
+
+		//echo $dumper->dump(json_decode(json_encode($table), true), 2, 0, false, true);
 	}
 }
