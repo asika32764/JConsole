@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sql\Schema\Init;
+namespace Command\Sql\Schema\Create;
 
 use JConsole\Command\JCommand;
 use Sqlsync\Factory;
@@ -22,7 +22,7 @@ defined('JPATH_CLI') or die;
  *
  * @since       3.2
  */
-class Init extends JCommand
+class Create extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -36,23 +36,23 @@ class Init extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'init';
+	protected $name = 'create';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Init a schema file';
+	protected $description = 'Create a schema version';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'init <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'create <cmd><command></cmd> <option>[option]</option>';
 
-	protected $version = 'main';
+	protected $version = null;
 
 	/**
 	 * Configure command information.
@@ -73,6 +73,18 @@ class Init extends JCommand
 	{
 		$schema = Factory::getSchema();
 
+		$version = $schema->getCurrentVersion();
+
+		$list = $schema->listAllVersion();
+
+		if (in_array($version, $list))
+		{
+			$this->out()->out('Now is newest version: ' . $version);
+
+			return;
+		}
+
+		die;
 		$schema->dump($this->version);
 
 		$state = $schema->getState();
