@@ -2,33 +2,26 @@
 
 namespace Command\Sql;
 
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 use Symfony\Component\Yaml\Dumper as SymfonyYamlDumper;
 
-class Sql extends Command
+class Sql extends JCommand
 {
 	public $name = 'sql';
 
 	public $description = 'Example description.';
 
-	public $isEnabled = true;
+	public static $isEnabled = true;
 
 	//        public $usage = 'example <command> [option]';
 
 	public function configure()
 	{
-		/*
-		$this->addArgument(new ExampleCommand)
-				->addOption(
-						'a',
-						0,
-						'desc'
-				);
-		*/
 	}
 
 	protected function doExecute()
 	{
+
 		$dumper = new SymfonyYamlDumper;
 
 		$db = \JFactory::getDbo();

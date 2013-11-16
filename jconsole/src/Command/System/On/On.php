@@ -8,10 +8,17 @@
 
 namespace Command\System\On;
 
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 
-class On extends Command
+class On extends JCommand
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	protected $name = 'on';
 
 	protected $description = 'Set this site online.';

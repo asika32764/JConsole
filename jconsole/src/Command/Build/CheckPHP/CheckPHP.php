@@ -2,15 +2,20 @@
 
 namespace Command\Build\CheckPHP;
 
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 
-class CheckPHP extends Command
+class CheckPHP extends JCommand
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	protected $name = 'check-constants';
 
 	protected $description = 'Check php files which do not included Joomla constants.';
-
-	protected $isEnabled = true;
 
 	protected $usage = 'check-constants <path>';
 

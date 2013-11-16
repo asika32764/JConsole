@@ -61,6 +61,5 @@ class JConsole extends JoomlaConsole
 				$this->defaultCommand->addArgument(new $class(null, $this->input, $this->output));
 			}
 		}
-
 	}
 }

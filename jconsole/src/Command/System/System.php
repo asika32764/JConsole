@@ -2,27 +2,24 @@
 
 namespace Command\System;
 
-use Command\System\CleanCache\CleanCache;
-use Command\System\Off\Off;
-use Command\System\On\On;
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 
-class System extends Command
+class System extends JCommand
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	protected $name = 'system';
 
 	protected $description = 'System control.';
-
-	public $isEnabled = true;
 
 	//        public $usage = 'example <command> [option]';
 
 	public function configure()
 	{
-		$this
-			//->addArgument(new Indexmaker)
-			->addArgument(new CleanCache)
-			->addArgument(new On)
-			->addArgument(new Off);
 	}
 }

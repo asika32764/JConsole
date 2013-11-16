@@ -2,10 +2,17 @@
 
 namespace Command\System\CleanCache;
 
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 
-class CleanCache extends Command
+class CleanCache extends JCommand
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	protected $name = 'clean-cache';
 
 	protected $description = 'Clean system cache.';

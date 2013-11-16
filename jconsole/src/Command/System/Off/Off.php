@@ -12,6 +12,13 @@ use Command\System\On\On;
 
 class Off extends On
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	protected $name = 'off';
 
 	protected $description = 'Set this site offline.';

@@ -2,15 +2,20 @@
 
 namespace Command\Build\Indexmaker;
 
-use Joomla\Console\Command\Command;
+use JConsole\Command\JCommand;
 
-class Indexmaker extends Command
+class Indexmaker extends JCommand
 {
+	/**
+	 * An enabled flag.
+	 *
+	 * @var bool
+	 */
+	public static $isEnabled = true;
+
 	public $name = 'index';
 
 	public $description = 'Create empty index.html files in directories.';
-
-	public $isEnabled = true;
 
 	//        public $usage = 'example <command> [option]';
 

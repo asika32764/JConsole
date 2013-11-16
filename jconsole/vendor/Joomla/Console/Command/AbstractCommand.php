@@ -281,7 +281,7 @@ abstract class AbstractCommand
 
 		$subCommand->setOutput($output);
 
-		if (!$this->getApplication())
+		if (!$subCommand->getApplication())
 		{
 			$subCommand->setApplication($this->application);
 		}
@@ -881,6 +881,11 @@ abstract class AbstractCommand
 		$this->err("<error>{$message}</error>");
 		$this->out('');
 		$this->err($autoComplete);
+
+		if ($this->getOption('v'))
+		{
+			$this->renderException($exception);
+		}
 	}
 
 	/**
