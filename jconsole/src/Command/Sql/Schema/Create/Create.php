@@ -61,7 +61,11 @@ class Create extends JCommand
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		$this->addOption(
+				array('f', 'force'),
+				0,
+				'Force new version.'
+			);
 	}
 
 	/**
@@ -77,19 +81,24 @@ class Create extends JCommand
 
 		$list = $schema->listAllVersion();
 
-		if (in_array($version, $list))
+		if (in_array($version, $list) && !$this->getOption('f'))
 		{
 			$this->out()->out('Now is newest version: ' . $version);
 
 			return;
 		}
 
-		die;
 		$schema->dump($this->version);
 
 		$state = $schema->getState();
 
-		$this->out()->out(sprintf('%s tables dumped.', $state->get('dump.count.tables', 0)));
+		$this->out();
+
+		$this->out(sprintf('Generated new version: %s', $version));
+
+		$this->out('------------------------------------');
+
+		$this->out(sprintf('%s tables dumped.', $state->get('dump.count.tables', 0)));
 
 		$this->out(sprintf('Save schema file to: %s', $state->get('dump.path')));
 	}

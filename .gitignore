@@ -7,11 +7,14 @@
 
 # Local System Files (i.e. cache, logs, etc.) #
 
+# JConsole Files #
 /*
 !jconsole/
 !.gitignore
 !console
 !README.md
+
+jconsole/resource
 
 # PHPUnit #
 phpunit.xml

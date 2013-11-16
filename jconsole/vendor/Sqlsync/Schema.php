@@ -30,14 +30,11 @@ class Schema extends \JModelBase
 	{
 		jimport('joomla.filesystem.file');
 
-		$config = \JFactory::getConfig();
-		$db     = $this->db;
-
-		$prefix = $config->get('dbprefix');
-		$version = Factory::getVersion()->addNew();
-
-		$tables = $db->setQuery("SHOW TABLES LIKE '{$prefix}%'")->loadColumn();
-
+		$config  = \JFactory::getConfig();
+		$db      = $this->db;
+		$prefix  = $config->get('dbprefix');
+		$version = $version ?: Factory::getVersion()->addNew();
+		$tables  = $db->setQuery("SHOW TABLES LIKE '{$prefix}%'")->loadColumn();
 		$columns = array();
 
 		foreach ($tables as $table)
@@ -62,12 +59,12 @@ class Schema extends \JModelBase
 		*/
 
 		$content = JsonHelper::encode($columns);
-
-		$path = $path . "/schema.json";
+		$path    = $path . "/schema.json";
+		$state   = $this->getState();
 
 		\JFile::write($path, $content);
 
-		$state = $this->getState();
+		$state->set('dump.version.new', $version);
 
 		$state->set('dump.path', $path);
 
