@@ -27,4 +27,9 @@ abstract class Factory
 
 		return self::$schema = new Schema($db);
 	}
+
+	public static function getConfig()
+	{
+
+	}
 }
