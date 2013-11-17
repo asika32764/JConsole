@@ -7,21 +7,21 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sql\Schema\Rename;
+namespace Command\Sql\Table\Track;
 
 use JConsole\Command\JCommand;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Rename
+ * Class Track
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Rename extends JCommand
+class Track extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -35,21 +35,21 @@ class Rename extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'rename';
+	protected $name = 'track';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Rename a table.';
+	protected $description = 'Set track status of table.';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'track <cmd>[all|cols|none]</cmd> <comment><table_name></comment> <option>[option]</option>';
 
 	/**
 	 * Configure command information.
@@ -68,20 +68,6 @@ class Rename extends JCommand
 	 */
 	protected function doExecute()
 	{
-		if (isset($this->input->args[0]))
-		{
-			$this->out()->out('Missing argument 1 (Table name).');
-		}
-
-		$name = $this->input->args[0];
-
-		if (isset($this->input->args[1]))
-		{
-			$this->out()->out('Missing argument 1 (New name).');
-		}
-
-		$newname = $this->input->args[1];
-
-
+		return parent::doExecute();
 	}
 }

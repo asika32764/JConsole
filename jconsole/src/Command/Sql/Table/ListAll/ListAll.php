@@ -7,21 +7,21 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sql\Schema\Rename;
+namespace Command\Sql\Table\ListAll;
 
 use JConsole\Command\JCommand;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Rename
+ * Class ListAll
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Rename extends JCommand
+class ListAll extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -35,21 +35,21 @@ class Rename extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'rename';
+	protected $name = 'list';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Rename a table.';
+	protected $description = 'List all tables.';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'list <cmd><command></cmd> <option>[option]</option>';
 
 	/**
 	 * Configure command information.
@@ -58,7 +58,11 @@ class Rename extends JCommand
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		$this->addOption(
+			array('a', 'all'),
+			0,
+			'List all includes different prefix.'
+		);
 	}
 
 	/**
@@ -68,20 +72,33 @@ class Rename extends JCommand
 	 */
 	protected function doExecute()
 	{
-		if (isset($this->input->args[0]))
+		$db = \JFactory::getDbo();
+
+		$prefix = $db->getPrefix();
+
+		// Show list tables
+		$sql = 'SHOW TABLES';
+
+		if (!$this->getOption('a'))
 		{
-			$this->out()->out('Missing argument 1 (Table name).');
+			$sql .= " LIKE '{$prefix}%'";
 		}
 
-		$name = $this->input->args[0];
+		$tables = $db->setQuery($sql)->loadColumn();
 
-		if (isset($this->input->args[1]))
+		foreach ($tables as $table)
 		{
-			$this->out()->out('Missing argument 1 (New name).');
+			$this->out('- ' . $table);
 		}
 
-		$newname = $this->input->args[1];
+		// Count all tables in this db
+		$count = count($db->setQuery('SHOW TABLES')->loadColumn());
 
+		// Output1
+		$this->out();
 
+		$this->out('List tables: ' . count($tables));
+
+		$this->out('All tables in this database: ' . $count);
 	}
 }
