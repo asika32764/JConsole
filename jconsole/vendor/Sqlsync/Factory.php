@@ -8,6 +8,8 @@ abstract class Factory
 
 	static public $schema;
 
+	static public $config;
+
 	public static function getVersion($profile = null, $db = null)
 	{
 		if (isset(self::$version[$profile]))
@@ -30,6 +32,20 @@ abstract class Factory
 
 	public static function getConfig()
 	{
+		if (self::$config)
+		{
+			return self::$config;
+		}
 
+		$defaultConfig = __DIR__ . '/Resource/config.yml';
+
+		$userConfig = SQLSYNC_RESOURCE . '/config.yml';
+
+		$config = new Config;
+
+		$config->loadFile($defaultConfig, 'yaml')
+			->loadFile($userConfig, 'yaml');
+
+		return self::$config = $config;
 	}
 }

@@ -33,7 +33,7 @@ class SqlExporter extends \JModelBase
 			}
 
 			$sql[] = "DROP TABLE IF EXISTS `{$table}`";
-			$sql[] = $this->getCreateSql($table);
+			$sql[] = $this->getCreateTableSql($table);
 
 			if ($trackStatus == 'all')
 			{
@@ -49,7 +49,7 @@ class SqlExporter extends \JModelBase
 		return implode(";\n\n", $sql) . ';';
 	}
 
-	protected function getCreateSql($table)
+	protected function getCreateTableSql($table)
 	{
 		$db = $this->db;
 
