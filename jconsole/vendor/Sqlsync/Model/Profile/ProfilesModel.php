@@ -34,4 +34,23 @@ class ProfilesModel extends \JModelBase
 
 		return $items;
 	}
+
+	public function getList()
+	{
+		$profiles = new \FilesystemIterator(SQLSYNC_PROFILE, \FilesystemIterator::SKIP_DOTS);
+
+		$items = array();
+
+		foreach ($profiles as $profile)
+		{
+			if ($profile->isFile())
+			{
+				continue;
+			}
+
+			$items[] = $profile->getBasename();
+		}
+
+		return $items;
+	}
 }

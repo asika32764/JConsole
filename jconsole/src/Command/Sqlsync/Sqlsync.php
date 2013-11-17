@@ -18,6 +18,10 @@ class Sqlsync extends JCommand
 
 	public function configure()
 	{
+	}
+
+	public function execute()
+	{
 		define('SQLSYNC_COMMAND',  __DIR__);
 
 		define('SQLSYNC_RESOURCE', JPATH_CLI . '/jconsole/resource/sqlsync');
@@ -25,6 +29,11 @@ class Sqlsync extends JCommand
 		define('SQLSYNC_PROFILE',  SQLSYNC_RESOURCE . '/profiles');
 
 		define('SQLSYNC_LIB',      JPATH_CLI . '/jconsole/vendor/Sqlsync');
+
+		jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.folder');
+
+		return parent::execute();
 	}
 
 	protected function doExecute()
