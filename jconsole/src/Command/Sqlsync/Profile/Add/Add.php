@@ -80,7 +80,7 @@ class Add extends JCommand
 
 		$model->add($name);
 
-		$this->out()->out(sprintf('Profile "%s" created. Use "$ profile %s" checkout to this profile.', $name, $name));
+		$this->out()->out(sprintf("Profile \"%s\" created.", $name));
 
 		return true;
 	}

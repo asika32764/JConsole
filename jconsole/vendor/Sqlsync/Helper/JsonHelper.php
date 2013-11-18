@@ -1,6 +1,6 @@
 <?php
 
-namespace Command\Sqlsync\Helper;
+namespace Sqlsync\Helper;
 
 abstract class JsonHelper
 {

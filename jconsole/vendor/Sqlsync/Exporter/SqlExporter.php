@@ -5,15 +5,8 @@ namespace Sqlsync\Exporter;
 use Sqlsync\Table\Table;
 use Sqlsync\Track\Track;
 
-class SqlExporter extends \JModelBase
+class SqlExporter extends AbstractExporter
 {
-	protected $db;
-
-	public function __construct()
-	{
-		$this->db = \JFactory::getDbo();
-	}
-
 	public function export()
 	{
 		$tableObject = new Table;
@@ -33,11 +26,11 @@ class SqlExporter extends \JModelBase
 			}
 
 			$sql[] = "DROP TABLE IF EXISTS `{$table}`";
-			$sql[] = $this->getCreateTableSql($table);
+			$sql[] = $this->getCreateTable($table);
 
 			if ($trackStatus == 'all')
 			{
-				$insert = $this->getInsertSql($table);
+				$insert = $this->getInserts($table);
 
 				if ($insert)
 				{
@@ -49,7 +42,7 @@ class SqlExporter extends \JModelBase
 		return implode(";\n\n", $sql) . ';';
 	}
 
-	protected function getCreateTableSql($table)
+	protected function getCreateTable($table)
 	{
 		$db = $this->db;
 
@@ -60,7 +53,7 @@ class SqlExporter extends \JModelBase
 		return $sql;
 	}
 
-	protected function getInsertSql($table)
+	protected function getInserts($table)
 	{
 		$db      = $this->db;
 		$query   = $db->getQuery(true);

@@ -14,6 +14,7 @@ use JConsole\Command\JCommand;
 use Joomla\Registry\Registry;
 use Sqlsync\Exporter\SqlExporter;
 use Sqlsync\Exporter\YamlExporter;
+use Sqlsync\Model\Database;
 
 defined('JPATH_CLI') or die;
 
@@ -76,8 +77,11 @@ class Export extends JCommand
 	 */
 	protected function doExecute()
 	{
-		jimport('joomla.filesystem.file');
+		$model = new Database;
 
+		$model->export('sql');
+
+		/*
 		$yaml = $this->getOption('yaml');
 
 		$exporter = $yaml ? new YamlExporter : new SqlExporter;
@@ -102,5 +106,6 @@ class Export extends JCommand
 		\JFile::write($file, $result);
 
 		$this->out()->out(sprintf('Sql file dumped to: %s', $file));
+		*/
 	}
 }

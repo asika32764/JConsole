@@ -18,13 +18,14 @@ class ProfileModel extends \JModelBase
 			throw new \Exception(sprintf('Profile "%s" exists.', $name));
 		}
 
-		jimport('joomla.filesystem.folder');
-		jimport('joomla.filesystem.file');
+		$profilePath = SQLSYNC_PROFILE . '/' . $name;
 
-		if (!\JFolder::create(SQLSYNC_PROFILE . '/' . $name))
+		if (!\JFolder::create($profilePath))
 		{
 			throw new \Exception(sprintf('Create profile "%s" fail.', $name));
 		}
+
+		\JFile::copy(SQLSYNC_LIB . '/Resource/track.yml', $profilePath . '/track.yml');
 
 		return true;
 	}
