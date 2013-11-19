@@ -8,34 +8,32 @@ use Symfony\Component\Yaml\Dumper;
 
 class YamlExporter extends AbstractExporter
 {
-	protected $db;
-
-	public function __construct()
-	{
-		$this->db = \JFactory::getDbo();
-	}
-
-	public function export()
+	public function export($ignoreTrack = false, $prefixOnly = false)
 	{
 		$tableObject = new Table;
 		$trackObject = new Track;
-		$tables      = $tableObject->listAll();
+		$tables      = $prefixOnly ? $tableObject->listSite() : $tableObject->listAll();
 		$track       = $trackObject->getTrackList();
 
 		$result = array();
+
+		$this->tableCount = 0;
+		$this->rowCount   = 0;
 
 		foreach ($tables as $table)
 		{
 			$trackStatus = $track->get('table.' . $table, 'none');
 
-			if ($trackStatus == 'none')
+			if ($trackStatus == 'none' && !$ignoreTrack)
 			{
 				continue;
 			}
 
 			$result[$table] = $this->getCreateTable($table);
 
-			if ($trackStatus == 'all')
+			$this->tableCount++;
+
+			if ($trackStatus == 'all' || $ignoreTrack)
 			{
 				$insert = $this->getInserts($table);
 
@@ -45,6 +43,9 @@ class YamlExporter extends AbstractExporter
 				}
 			}
 		}
+
+		$this->state->set('dump.count.tables', $this->tableCount);
+		$this->state->set('dump.count.rows', $this->rowCount);
 
 		$dumper = new Dumper;
 
@@ -89,6 +90,8 @@ class YamlExporter extends AbstractExporter
 		//$result['columns'] = $columns;
 
 		$result['data'] = $datas;
+
+		$this->rowCount += count($datas);
 
 		return $result;
 	}

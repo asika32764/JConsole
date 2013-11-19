@@ -12,6 +12,10 @@ abstract class AbstractExporter extends \JModelDatabase
 
 	protected $queryHelper;
 
+	protected $tableCount = 0;
+
+	protected $rowCount = 0;
+
 	static public function getInstance($type = 'sql')
 	{
 		if (!empty(self::$instance[$type]))
@@ -31,7 +35,7 @@ abstract class AbstractExporter extends \JModelDatabase
 		$this->queryHelper = AbstractQueryHelper::getInstance($this->db->name);
 	}
 
-	abstract public function export();
+	abstract public function export($ignoreTrack = false, $prefixOnly = false);
 
 	abstract protected function getCreateTable($table);
 

@@ -7,20 +7,23 @@ use Sqlsync\Track\Track;
 
 class SqlExporter extends AbstractExporter
 {
-	public function export()
+	public function export($ignoreTrack = false, $prefixOnly = false)
 	{
 		$tableObject = new Table;
 		$trackObject = new Track;
-		$tables      = $tableObject->listAll();
+		$tables      = $prefixOnly ? $tableObject->listSite() : $tableObject->listAll();
 		$track       = $trackObject->getTrackList();
 
 		$sql = array();
+
+		$this->tableCount = 0;
+		$this->rowCount   = 0;
 
 		foreach ($tables as $table)
 		{
 			$trackStatus = $track->get('table.' . $table, 'none');
 
-			if ($trackStatus == 'none')
+			if ($trackStatus == 'none' && !$ignoreTrack)
 			{
 				continue;
 			}
@@ -28,7 +31,9 @@ class SqlExporter extends AbstractExporter
 			$sql[] = $this->queryHelper->dropTable($table);
 			$sql[] = $this->getCreateTable($table);
 
-			if ($trackStatus == 'all')
+			$this->tableCount++;
+
+			if ($trackStatus == 'all' || $ignoreTrack)
 			{
 				$insert = $this->getInserts($table);
 
@@ -38,6 +43,9 @@ class SqlExporter extends AbstractExporter
 				}
 			}
 		}
+
+		$this->state->set('dump.count.tables', $this->tableCount);
+		$this->state->set('dump.count.rows', $this->rowCount);
 
 		return implode(";\n\n", $sql) . ';';
 	}
@@ -88,6 +96,8 @@ class SqlExporter extends AbstractExporter
 			);
 
 			$query->values(implode(', ', $data));
+
+			$this->rowCount++;
 		}
 
 		return (string) $query;

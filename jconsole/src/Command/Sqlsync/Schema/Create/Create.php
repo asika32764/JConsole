@@ -10,7 +10,7 @@
 namespace Command\Sqlsync\Schema\Create;
 
 use JConsole\Command\JCommand;
-use Sqlsync\Factory;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
@@ -75,31 +75,40 @@ class Create extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$schema = Factory::getSchema();
+		// Hello message
+		$this->out('Creating new version...');
+
+		// Do create.
+		$schema = new Schema;
+
+		if (!$schema->hasInit())
+		{
+			$this->out()->out('This profile not initialised yet, we are initialising it first...');
+
+			$this->getParent()->getArgument('init')->execute();
+
+			$this->out()->out('Initialised ok. Then we create new version.');
+		}
+
+		$schema->create($this->getOption('f'));
 
 		$version = $schema->getCurrentVersion();
 
-		$list = $schema->listAllVersion();
-
-		if (in_array($version, $list) && !$this->getOption('f'))
-		{
-			$this->out()->out('Now is newest version: ' . $version);
-
-			return;
-		}
-
-		$schema->dump($this->version);
-
 		$state = $schema->getState();
 
+		// Report
 		$this->out();
 
 		$this->out(sprintf('Generated new version: %s', $version));
 
 		$this->out('------------------------------------');
 
-		$this->out(sprintf('%s tables dumped.', $state->get('dump.count.tables', 0)));
+		$this->out()->out(sprintf('%s tables dumped.', $state->get('dump.count.tables', 0)));
+
+		$this->out(sprintf('%s rows dumped.', $state->get('dump.count.rows', 0)));
 
 		$this->out(sprintf('Save schema file to: %s', $state->get('dump.path')));
+
+		return true;
 	}
 }

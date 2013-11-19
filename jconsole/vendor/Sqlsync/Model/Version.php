@@ -2,6 +2,7 @@
 
 namespace Sqlsync\Model;
 
+use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Table\VersionTable;
 
 class Version extends \JModelDatabase
@@ -10,11 +11,11 @@ class Version extends \JModelDatabase
 
 	protected $current;
 
-	public function __construct($profile = 'main', \JDatabaseDriver $db = null)
+	public function __construct()
 	{
 		parent::__construct();
 
-		$this->profile = $profile ?: 'main';
+		$this->profile = ProfileHelper::getProfile();
 	}
 
 	public function getCurrent()
@@ -60,11 +61,33 @@ class Version extends \JModelDatabase
 
 		$versionTable->profile = $this->profile;
 
-		$versionTable->version = $this->generateVersion();
+		$versionTable->version = $current;
 
 		$versionTable->store();
 
 		return $current;
+	}
+
+	public function listAll()
+	{
+		$path = ProfileHelper::getPath() . '/schema';
+
+		$dirs = new \DirectoryIterator($path);
+
+		$list = array();
+
+		foreach ($dirs as $dir)
+		{
+			/** @var $dir \SplFileInfo */
+			if ($dir->isFile() || $dir->getBasename() == 'main' || $dir->isDot())
+			{
+				continue;
+			}
+
+			$list[] = $dir->getBasename();
+		}
+
+		return $list;
 	}
 
 	public function hasTable()

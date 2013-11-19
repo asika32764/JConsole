@@ -2,89 +2,124 @@
 
 namespace Sqlsync\Model;
 
-use Sqlsync\Helper\JsonHelper;
+use Sqlsync\Exporter\AbstractExporter;
+use Sqlsync\Helper\ProfileHelper;
 
 class Schema extends \JModelDatabase
 {
-	protected $path;
+	protected $versionModel;
+
+	public $initPath;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$this->path = JPATH_CLI . '/jconsole/resource/sql/schema/';
+		$this->initPath = ProfileHelper::getPath() . '/schema/init.yml';
 	}
 
-	public function getCurrentVersion($profile = 'main')
+	public function init()
 	{
-		$version = Factory::getVersion($profile);
+		$content = $this->export(false, false);
 
-		return $version->getCurrent();
-	}
+		$path    = $this->initPath;
 
-	public function dump($version = null, $path = null)
-	{
-		jimport('joomla.filesystem.file');
-
-		$config  = \JFactory::getConfig();
-		$db      = $this->db;
-		$prefix  = $config->get('dbprefix');
-		$version = $version ?: Factory::getVersion()->addNew();
-		$tables  = $db->setQuery("SHOW TABLES LIKE '{$prefix}%'")->loadColumn();
-		$columns = array();
-
-		foreach ($tables as $table)
+		if (file_exists($path))
 		{
-			$columns[$table]['schema'] = $db->setQuery("SHOW FULL COLUMNS FROM `{$table}`")->loadAssocList('Field');
-			$columns[$table]['index']  = $db->setQuery("SHOW INDEX FROM `{$table}`")->loadAssocList();
+			$msg = "Already initialised.\nFile in: " . $path;
+
+			throw new \RuntimeException($msg);
 		}
-
-		$path = $path
-			? JPATH_CLI . '/jconsole/resource/' . $path
-			: $this->path . $version;
-
-		/*
-		$dumper = new SymfonyYamlDumper;
-
-		foreach ($columns as $table => $column)
-		{
-			//$content = $dumper->dump(json_decode(json_encode($column), true), 2, 0, false, true);
-
-			//\JFile::write($file . $table . '.yml', $content);
-		}
-		*/
-
-		$content = JsonHelper::encode($columns);
-		$path    = $path . "/schema.json";
-		$state   = $this->getState();
 
 		\JFile::write($path, $content);
+
+		$state   = $this->getState();
+
+		// $state->set('dump.version.new', $version);
+
+		$state->set('dump.path', $path);
+
+		return true;
+	}
+
+	public function create($force = false)
+	{
+		$version = $this->getCurrentVersion();
+
+		$list = $this->listAllVersion();
+
+		if (in_array($version, $list))
+		{
+			throw new \RuntimeException('Now is newest version: ' . $version);
+		}
+
+		$content = $this->export(false, false);
+
+		$path    = ProfileHelper::getPath() . '/schema/' . $version . '/schema.yml';
+
+		\JFile::write($path, $content);
+
+		$state   = $this->getState();
 
 		$state->set('dump.version.new', $version);
 
 		$state->set('dump.path', $path);
 
-		$state->set('dump.count.tables', count($tables));
-
 		return true;
+	}
+
+	public function hasInit()
+	{
+		$path    = $this->initPath;
+
+		if (file_exists($path))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public function export($ignoreTrack = false, $onlyPrefix = false)
+	{
+		$expoter = AbstractExporter::getInstance('yaml');
+
+		/** @var $expoter AbstractExporter */
+		$result = $expoter->export($ignoreTrack, $onlyPrefix);
+
+		$this->state->set('dump.count.tables', $expoter->getState()->get('dump.count.tables'));
+
+		$this->state->set('dump.count.rows', $expoter->getState()->get('dump.count.rows'));
+
+		return $result;
+	}
+
+
+	public function getCurrentVersion()
+	{
+		$version = $this->getVersionModel();
+
+		return $version->getCurrent();
 	}
 
 	public function listAllVersion()
 	{
-		$dirs = new \DirectoryIterator($this->path);
+		$version = $this->getVersionModel();
 
-		$list = array();
+		return $version->listAll();
+	}
 
-		foreach ($dirs as $dir)
+	/**
+	 * @return mixed
+	 */
+	public function getVersionModel()
+	{
+		if ($this->versionModel)
 		{
-			if ($dir->isFile() || $dir->getBasename() == 'main' || $dir->isDot())
-			{
-				continue;
-			}
-
-			$list[] = $dir->getBasename();
+			return $this->versionModel;
 		}
 
-		return $list;
+		return $this->versionModel = new Version;
 	}
+
 }

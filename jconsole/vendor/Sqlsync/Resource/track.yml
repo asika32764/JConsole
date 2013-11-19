@@ -67,3 +67,4 @@ table:
     j320_users: all
     j320_viewlevels: all
     j320_weblinks: all
+    sqlsync: all

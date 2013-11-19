@@ -11,6 +11,7 @@ namespace Command\Sqlsync\Schema\Init;
 
 use JConsole\Command\JCommand;
 use Sqlsync\Factory;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
@@ -71,14 +72,29 @@ class Init extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$schema = Factory::getSchema();
+		// Hello message
+		$this->out('Initialising schema...');
 
-		$schema->dump($this->version);
+		// Do init
+		$schema = new Schema;
+
+		$schema->init();
 
 		$state = $schema->getState();
 
+		// Report
+		$this->out();
+
+		$this->out(sprintf('Schema Initialised'));
+
+		$this->out('------------------------------------');
+
 		$this->out()->out(sprintf('%s tables dumped.', $state->get('dump.count.tables', 0)));
 
+		$this->out(sprintf('%s rows dumped.', $state->get('dump.count.rows', 0)));
+
 		$this->out(sprintf('Save schema file to: %s', $state->get('dump.path')));
+
+		return true;
 	}
 }

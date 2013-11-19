@@ -3,15 +3,20 @@
 namespace Sqlsync\Track;
 
 use Joomla\Registry\Registry;
+use Sqlsync\Helper\ProfileHelper;
 use Symfony\Component\Yaml\Parser as SymfontYamlParser;
 
 class Track extends \JModelBase
 {
 	protected $file;
 
+	protected $global;
+
 	public function __construct()
 	{
-		$this->file = JPATH_CLI . '/jconsole/resource/sql/track.yml';
+		$this->global = SQLSYNC_LIB . '/Resource/track.yml';
+
+		$this->file = ProfileHelper::getPath() . '/track.yml';
 	}
 
 	public function getTrackList()
@@ -20,7 +25,8 @@ class Track extends \JModelBase
 
 		if (file_exists($this->file))
 		{
-			$track->loadFile($this->file, 'yaml');
+			$track->loadFile($this->global, 'yaml')
+				->loadFile($this->file, 'yaml');
 		}
 
 		return $track;
