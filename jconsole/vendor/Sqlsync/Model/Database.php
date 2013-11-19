@@ -7,15 +7,12 @@ use Sqlsync\Helper\ProfileHelper;
 
 class Database extends \JModelBase
 {
-	public function export($type = 'sql')
+	public function save($type = 'sql')
 	{
-		/** @var $exporter AbstractExporter */
-		$exporter = AbstractExporter::getInstance($type);
 		$config   = \JFactory::getConfig();
 		$profile  = ProfileHelper::getProfile();
 
-		// Export it.
-		$result = $exporter->export();
+		$export = $this->export($type);
 
 		$file = 'site-' . $config->get('db') . '-' . $profile . '-' . date('Y-m-d-H-i-s');
 
@@ -30,8 +27,17 @@ class Database extends \JModelBase
 
 		$file = ProfileHelper::getPath() . '/export/' . $type . '/' . $file;
 
-		\JFile::write($file, $result);
+		\JFile::write($file, $export);
 
 		return true;
+	}
+
+	public function export($type = 'sql')
+	{
+		/** @var $exporter AbstractExporter */
+		$exporter = AbstractExporter::getInstance($type);
+
+		// Export it.
+		return $exporter->export();
 	}
 }

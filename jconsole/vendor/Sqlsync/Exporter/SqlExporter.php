@@ -25,7 +25,7 @@ class SqlExporter extends AbstractExporter
 				continue;
 			}
 
-			$sql[] = "DROP TABLE IF EXISTS `{$table}`";
+			$sql[] = $this->queryHelper->dropTable($table);
 			$sql[] = $this->getCreateTable($table);
 
 			if ($trackStatus == 'all')
@@ -46,7 +46,7 @@ class SqlExporter extends AbstractExporter
 	{
 		$db = $this->db;
 
-		$result = $db->setQuery('SHOW CREATE TABLE ' . $db->quoteName($db->escape($table)))->loadRow();
+		$result = $db->setQuery($this->queryHelper->showColumns($table))->loadRow();
 
 		$sql = preg_replace('#AUTO_INCREMENT=\S+#is', '', $result[1]);
 
@@ -57,8 +57,8 @@ class SqlExporter extends AbstractExporter
 	{
 		$db      = $this->db;
 		$query   = $db->getQuery(true);
-		$columns = $db->setQuery("SHOW COLUMNS FROM `{$table}`")->loadColumn();
-		$datas   = $db->setQuery("SELECT * FROM `{$table}`")->getIterator('ArrayObject');
+		$columns = $db->setQuery($this->queryHelper->showColumns($table))->loadColumn();
+		$datas   = $db->setQuery($this->queryHelper->getAllData($table))->getIterator('ArrayObject');
 
 		if (!count($datas))
 		{

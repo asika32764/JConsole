@@ -2,12 +2,11 @@
 
 namespace Sqlsync\Exporter;
 
-use Joomla\Registry\Registry;
 use Sqlsync\Table\Table;
 use Sqlsync\Track\Track;
 use Symfony\Component\Yaml\Dumper;
 
-class YamlExporter extends \JModelBase
+class YamlExporter extends AbstractExporter
 {
 	protected $db;
 
@@ -34,11 +33,11 @@ class YamlExporter extends \JModelBase
 				continue;
 			}
 
-			$result[$table] = $this->getCreateTableSql($table);
+			$result[$table] = $this->getCreateTable($table);
 
 			if ($trackStatus == 'all')
 			{
-				$insert = $this->getInsertSql($table);
+				$insert = $this->getInserts($table);
 
 				if ($insert)
 				{
@@ -49,10 +48,10 @@ class YamlExporter extends \JModelBase
 
 		$dumper = new Dumper;
 
-		return $dumper->dump(json_decode(json_encode($result), true), 4, 0, false, true);
+		return $dumper->dump(json_decode(json_encode($result), true), 3, 0, false, true);
 	}
 
-	protected function getCreateTableSql($table)
+	protected function getCreateTable($table)
 	{
 		$db = $this->db;
 
@@ -75,7 +74,7 @@ class YamlExporter extends \JModelBase
 		return $result;
 	}
 
-	protected function getInsertSql($table)
+	protected function getInserts($table)
 	{
 		$db      = $this->db;
 		$query   = $db->getQuery(true);

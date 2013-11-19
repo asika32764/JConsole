@@ -77,9 +77,13 @@ class Export extends JCommand
 	 */
 	protected function doExecute()
 	{
+		$type = $this->getOption('y') ? 'yaml' : 'sql';
+
 		$model = new Database;
 
-		$model->export('sql');
+		$model->save($type);
+
+
 
 		/*
 		$yaml = $this->getOption('yaml');
