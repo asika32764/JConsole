@@ -48,10 +48,16 @@ class Schema extends \JModelDatabase
 
 		$list = $this->listAllVersion();
 
-		if (in_array($version, $list))
+		if (in_array($version, $list) && !$force)
 		{
 			throw new \RuntimeException('Now is newest version: ' . $version);
 		}
+
+		$versionModel = $this->getVersionModel();
+
+		$versionModel->addNew();
+
+		$version = $this->getCurrentVersion();
 
 		$content = $this->export(false, false);
 
