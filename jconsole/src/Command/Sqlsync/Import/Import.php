@@ -69,22 +69,21 @@ class Import extends JCommand
 	 */
 	protected function doExecute()
 	{
-		jimport('joomla.filesystem.folder');
-
-		$db = \JFactory::getDbo();
-
 		$model = new Database;
 
 		$list = $model->getExported();
 
 		$file = array_shift($list);
 
+		// Message
 		$this->out()->out(sprintf("The newest sql export is: %s", basename($file)));
 
 		$this->out('Importing...');
 
+		// Do importing
 		$model->importFromFile($file);
 
+		// Message
 		$queries = $model->getState()->get('import.queries', 0);
 
 		$this->out(sprintf("Import success. %s queries executed.", $queries));

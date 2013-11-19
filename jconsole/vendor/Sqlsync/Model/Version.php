@@ -3,7 +3,7 @@
 namespace Sqlsync\Model;
 
 use Sqlsync\Helper\ProfileHelper;
-use Sqlsync\Model\VersionTable;
+use Sqlsync\Table\VersionTable;
 
 class Version extends \JModelDatabase
 {
