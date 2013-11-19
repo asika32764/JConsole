@@ -1,9 +1,10 @@
 <?php
 
-namespace Sqlsync\Track;
+namespace Sqlsync\Model;
 
 use Joomla\Registry\Registry;
 use Sqlsync\Helper\ProfileHelper;
+use Sqlsync\Helper\TableHelper;
 use Symfony\Component\Yaml\Parser as SymfontYamlParser;
 
 class Track extends \JModelBase
@@ -36,13 +37,15 @@ class Track extends \JModelBase
 	{
 		$db = \JFactory::getDbo();
 
+		$prefix = $db->getPrefix();
+
 		$tables = (array) $tables;
 
 		$track = $this->getTrackList();
 
 		foreach ($tables as $table)
 		{
-			$table = $db->replacePrefix($table);
+			$table = TableHelper::stripPrefix($table, $prefix);
 
 			$track->set('table.' . $table, $status);
 		}

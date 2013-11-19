@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Import;
 
 use JConsole\Command\JCommand;
+use Sqlsync\Model\Database;
 
 defined('JPATH_CLI') or die;
 
@@ -72,27 +73,22 @@ class Import extends JCommand
 
 		$db = \JFactory::getDbo();
 
-		$list = \JFolder::files(JPATH_CLI . '/jconsole/resource/sql/export', '.', false, true);
+		$model = new Database;
 
-		rsort($list);
+		$list = $model->getExported();
 
 		$file = array_shift($list);
 
-		$this->out()->out("The newest sql export is: {$file}");
+		$this->out()->out(sprintf("The newest sql export is: %s", basename($file)));
 
 		$this->out('Importing...');
 
-		$sql = file_get_contents($file);
+		$model->importFromFile($file);
 
-		$sql = trim($sql);
+		$queries = $model->getState()->get('import.queries', 0);
 
-		$queries = $db->splitSql($sql);
+		$this->out(sprintf("Import success. %s queries executed.", $queries));
 
-		foreach ($queries as $query)
-		{
-			$db->setQuery($query)->execute();
-		}
-
-		$this->out(sprintf("Import success. %s queries executed.", count($queries)));
+		return true;
 	}
 }

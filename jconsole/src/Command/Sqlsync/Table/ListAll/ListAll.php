@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Table\ListAll;
 
 use JConsole\Command\JCommand;
+use Sqlsync\Model\Table;
 
 defined('JPATH_CLI') or die;
 
@@ -72,19 +73,17 @@ class ListAll extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$db = \JFactory::getDbo();
+		$tableObject = new Table;
 
-		$prefix = $db->getPrefix();
-
-		// Show list tables
-		$sql = 'SHOW TABLES';
-
-		if (!$this->getOption('a'))
+		if ($this->getOption('a'))
 		{
-			$sql .= " LIKE '{$prefix}%'";
+			$tables = $tableObject->listAll();
+		}
+		else
+		{
+			$tables = $tableObject->listSite();
 		}
 
-		$tables = $db->setQuery($sql)->loadColumn();
 
 		foreach ($tables as $table)
 		{
@@ -92,7 +91,7 @@ class ListAll extends JCommand
 		}
 
 		// Count all tables in this db
-		$count = count($db->setQuery('SHOW TABLES')->loadColumn());
+		$count = count($tableObject->listAll());
 
 		// Output1
 		$this->out();

@@ -11,8 +11,8 @@ namespace Command\Sqlsync\Table\Status;
 
 
 use JConsole\Command\JCommand;
-use Sqlsync\Table\Table;
-use Sqlsync\Track\Track;
+use Sqlsync\Model\Table;
+use Sqlsync\Model\Track;
 
 defined('JPATH_CLI') or die;
 
@@ -71,17 +71,15 @@ class Status extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$tableObject = new Table;
+		$tableModel = new Table;
 
-		$trackObject = new Track;
+		$statuses = $tableModel->status();
 
-		$tables = $tableObject->listAll();
-
-		$track  = $trackObject->getTrackList();
+		$tables = \JArrayHelper::getColumn($statuses, 'table');
 
 		$maxLength = max(array_map('strlen', $tables));
 
-
+		// Show message
 		$this->out()->out('Track Status:')->out();
 
 		$titleSpaces = $maxLength - 5;
@@ -90,15 +88,12 @@ class Status extends JCommand
 
 		$this->out('---------------------------------------------------------------');
 
-		foreach ($tables as $table)
+		// List table & status
+		foreach ($statuses as $status)
 		{
-			$trackStatus = $track->get('table.' . $table);
+			$spaces = $maxLength - strlen($status['table']) + 4;
 
-			$trackStatus = $trackStatus ?: 'none';
-
-			$spaces = $maxLength - strlen($table) + 4;
-
-			$this->out(sprintf("- %s %-{$spaces}s %s", $table, '', $trackStatus));
+			$this->out(sprintf("- %s %-{$spaces}s %s", $status['table'], '', $status['status']));
 		}
 	}
 }

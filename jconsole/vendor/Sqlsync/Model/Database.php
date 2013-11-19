@@ -5,7 +5,7 @@ namespace Sqlsync\Model;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
 
-class Database extends \JModelBase
+class Database extends \JModelDatabase
 {
 	public function save($type = 'sql')
 	{
@@ -39,5 +39,44 @@ class Database extends \JModelBase
 
 		// Export it.
 		return $exporter->export();
+	}
+
+	public function getExported()
+	{
+		$path = ProfileHelper::getPath();
+
+		$list = \JFolder::files($path . '/export/sql', '.', false, true);
+
+		rsort($list);
+
+		return $list;
+	}
+
+	public function importFromFile($file)
+	{
+		$sql = file_get_contents($file);
+
+		$sql = trim($sql);
+
+		return $this->import($sql);
+	}
+
+	public function import($queries)
+	{
+		if (!is_array($queries))
+		{
+			$queries = $this->db->splitSql($queries);
+		}
+
+		foreach ($queries as $query)
+		{
+			$query = trim($query);
+
+			$this->db->setQuery($query)->execute();
+		}
+
+		$this->state->set('import.queries', count($queries));
+
+		return true;
 	}
 }

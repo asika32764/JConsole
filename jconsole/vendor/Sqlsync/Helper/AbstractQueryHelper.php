@@ -23,6 +23,8 @@ abstract class AbstractQueryHelper
 		$this->db = \JFactory::getDbo();
 	}
 
+	abstract public function showCreateTable($table);
+
 	abstract public function showColumns($table);
 
 	abstract public function getAllData($table);

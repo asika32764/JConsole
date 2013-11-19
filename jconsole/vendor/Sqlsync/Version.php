@@ -2,7 +2,7 @@
 
 namespace Sqlsync;
 
-use Sqlsync\Table\VersionTable;
+use Sqlsync\Model\VersionTable;
 
 class Version
 {

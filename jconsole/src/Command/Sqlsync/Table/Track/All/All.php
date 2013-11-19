@@ -10,8 +10,8 @@
 namespace Command\Sqlsync\Table\Track\All;
 
 use JConsole\Command\JCommand;
-use Sqlsync\Table\Table;
-use Sqlsync\Track\Track;
+use Sqlsync\Model\Table;
+use Sqlsync\Model\Track;
 
 defined('JPATH_CLI') or die;
 

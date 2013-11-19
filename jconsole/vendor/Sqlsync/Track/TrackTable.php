@@ -1,6 +1,6 @@
 <?php
 
-namespace Sqlsync\Track\TrackTable
+namespace Sqlsync\Model\TrackTable
 {
 
 }

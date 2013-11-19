@@ -2,8 +2,9 @@
 
 namespace Sqlsync\Exporter;
 
-use Sqlsync\Table\Table;
-use Sqlsync\Track\Track;
+use Sqlsync\Helper\TableHelper;
+use Sqlsync\Model\Table;
+use Sqlsync\Model\Track;
 
 class SqlExporter extends AbstractExporter
 {
@@ -54,9 +55,17 @@ class SqlExporter extends AbstractExporter
 	{
 		$db = $this->db;
 
-		$result = $db->setQuery($this->queryHelper->showColumns($table))->loadRow();
+		$result = $db->setQuery($this->queryHelper->showCreateTable($table))->loadRow();
 
 		$sql = preg_replace('#AUTO_INCREMENT=\S+#is', '', $result[1]);
+
+		$sql = explode("\n", $sql);
+
+		$tableStriped = TableHelper::stripPrefix($result[0], $db->getPrefix());
+
+		$sql[0] = str_replace($result[0], $tableStriped, $sql[0]);
+
+		$sql = implode("\n", $sql);
 
 		return $sql;
 	}
@@ -81,7 +90,7 @@ class SqlExporter extends AbstractExporter
 			$columns
 		);
 
-		$query->insert($table)->columns(implode(', ', $columns));
+		$query->insert($query->quoteName($query->escape($table)))->columns(implode(', ', $columns));
 
 		foreach ($datas as $data)
 		{

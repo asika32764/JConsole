@@ -2,8 +2,8 @@
 
 namespace Sqlsync\Exporter;
 
-use Sqlsync\Table\Table;
-use Sqlsync\Track\Track;
+use Sqlsync\Model\Table;
+use Sqlsync\Model\Track;
 use Symfony\Component\Yaml\Dumper;
 
 class YamlExporter extends AbstractExporter
@@ -61,7 +61,7 @@ class YamlExporter extends AbstractExporter
 
 		foreach ($indexes as &$index)
 		{
-			unset($index['Table']);
+			unset($index['Model']);
 			unset($index['Collation']);
 			unset($index['Cardinality']);
 			unset($index['Sub_part']);

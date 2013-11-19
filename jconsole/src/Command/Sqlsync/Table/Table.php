@@ -42,7 +42,7 @@ class Table extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Table operation.';
+	protected $description = 'Model operation.';
 
 	/**
 	 * The usage to tell user how to use this command.

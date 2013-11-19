@@ -7,7 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sqlsync\Schema\Rename;
+namespace Command\Sqlsync\Table\Rename;
 
 use JConsole\Command\JCommand;
 
@@ -70,7 +70,7 @@ class Rename extends JCommand
 	{
 		if (isset($this->input->args[0]))
 		{
-			$this->out()->out('Missing argument 1 (Table name).');
+			$this->out()->out('Missing argument 1 (Model name).');
 		}
 
 		$name = $this->input->args[0];
