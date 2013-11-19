@@ -2,6 +2,7 @@
 
 namespace Sqlsync\Model;
 
+use Joomla\Registry\Registry;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
 
@@ -61,7 +62,7 @@ class Schema extends \JModelDatabase
 
 		$content = $this->export(false, false);
 
-		$path    = ProfileHelper::getPath() . '/schema/' . $version . '/schema.yml';
+		$path    = $this->getCurrentPath($version);
 
 		\JFile::write($path, $content);
 
@@ -128,4 +129,38 @@ class Schema extends \JModelDatabase
 		return $this->versionModel = new Version;
 	}
 
+	public function getCurrent()
+	{
+		$version = $this->getCurrentVersion();
+
+		return $this->loadSchema($version);
+	}
+
+	public function loadSchema($version)
+	{
+		$path = $this->getVersionPath($version);
+
+		$schema = new Registry;
+
+		$schema->loadFile($path, 'yaml');
+
+		return $schema;
+	}
+
+	public function getPath()
+	{
+		return ProfileHelper::getPath() . '/schema';
+	}
+
+	public function getVersionPath($version = null)
+	{
+		return $this->getPath() . '/' . $version . '/schema.yml';
+	}
+
+	public function getCurrentPath()
+	{
+		$version = $this->getCurrentVersion();
+
+		return $this->getVersionPath($version);
+	}
 }

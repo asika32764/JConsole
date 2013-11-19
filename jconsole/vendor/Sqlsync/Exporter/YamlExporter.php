@@ -56,9 +56,28 @@ class YamlExporter extends AbstractExporter
 	{
 		$db = $this->db;
 
-		$result['columns'] = $db->setQuery('SHOW FULL COLUMNS FROM ' . $db->quoteName($db->escape($table)))->loadAssocList('Field');
-		$indexes   = $db->setQuery("SHOW INDEX FROM `{$table}`")->loadAssocList();
+		$columns = $db->setQuery('SHOW FULL COLUMNS FROM ' . $db->quoteName($db->escape($table)))->loadAssocList('Field');
+		$indexes = $db->setQuery("SHOW INDEX FROM `{$table}`")->loadAssocList();
 
+		// Handle column details
+		foreach ($columns as &$column)
+		{
+			if (strpos($column['Type'], 'unsigned'))
+			{
+				$column['Unsigned'] = true;
+				$column['Type'] = substr($column['Type'], 0, -9);
+			}
+			else
+			{
+				$column['Unsigned'] = false;
+			}
+
+			unset($column['Privileges']);
+			unset($column['Extra']);
+			unset($column['Collation']);
+		}
+
+		// Handle index details
 		foreach ($indexes as &$index)
 		{
 			unset($index['Model']);
@@ -69,6 +88,7 @@ class YamlExporter extends AbstractExporter
 			unset($index['Index_type']);
 		}
 
+		$result['columns'] = $columns;
 		$result['index'] = $indexes;
 		// $sql = preg_replace('#AUTO_INCREMENT=\S+#is', '', $result[1]);
 
