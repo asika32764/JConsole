@@ -26,7 +26,9 @@ class Track extends \JModelBase
 
 		if (!file_exists($this->file))
 		{
-			file_put_contents($this->file, '');
+			$buffer = '';
+
+			\JFile::write($this->file, $buffer);
 		}
 
 		$track->loadFile($this->global, 'yaml')

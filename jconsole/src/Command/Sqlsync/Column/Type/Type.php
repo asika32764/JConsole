@@ -9,7 +9,8 @@
 
 namespace Command\Sqlsync\Column\Type;
 
-use JConsole\Command\JCommand;
+use Command\Sqlsync\Column\Rename\Rename;
+use Sqlsync\Helper\TypeValidator;
 
 defined('JPATH_CLI') or die;
 
@@ -21,7 +22,7 @@ defined('JPATH_CLI') or die;
  *
  * @since       3.2
  */
-class Type extends JCommand
+class Type extends Rename
 {
 	/**
 	 * An enabled flag.
@@ -49,7 +50,9 @@ class Type extends JCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'type <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <cmd><new type></cmd> <option>[option]</option>';
+
+	protected $target = 'type';
 
 	/**
 	 * Configure command information.
@@ -69,5 +72,33 @@ class Type extends JCommand
 	protected function doExecute()
 	{
 		return parent::doExecute();
+	}
+
+	protected function change($column, $value)
+	{
+		$this->out()->out(sprintf('Current is: %s', $column['Type']));
+
+		$valid = true;
+
+		do
+		{
+			if (!$valid)
+			{
+				$this->out()->out('Invalid value.');
+			}
+
+			$value = $this->in('Enter new type: ');
+		}
+
+		while (!($valid = TypeValidator::validate($value)));
+
+		if (!$value)
+		{
+			throw new \Exception('Cancelled.');
+		}
+
+		$column['Type'] = $value;
+
+		return $column;
 	}
 }

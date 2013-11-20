@@ -51,7 +51,9 @@ class Rename extends JCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <cmd><new column name></cmd> <option>[option]</option>';
+
+	protected $target = 'column name';
 
 	/**
 	 * Configure command information.
@@ -70,23 +72,58 @@ class Rename extends JCommand
 	 */
 	protected function doExecute()
 	{
+		@$table = $this->input->args[0];
+
+		@$name = $this->input->args[1];
+
+		@$value = $this->input->args[2];
+
+		if (!$table)
+		{
+			throw new \InvalidArgumentException("Missing argument <comment>1</comment>: Table name.\n\nUsage:\n" . $this->usage);
+		}
+
+		if (!$name)
+		{
+			throw new \InvalidArgumentException("Missing argument <comment>2</comment>: Column name.\n\nUsage:\n" . $this->usage);
+		}
+
 		$schemaModel = new Schema;
 
 		$schema = $schemaModel->getCurrent();
 
-		$column = $schema->get('#__assets' . '.columns.' . 'id');
+		$column = $schema->get($table . '.columns.' . $name);
 
-		$column = $this->change((array) $column, 'id2');
+		if (!$column)
+		{
+			throw new \UnexpectedValueException('We are not tracking this table or column of this table not exists.');
+		}
 
-		$schema->set('#__assets' . '.columns.' . 'id', $column);
+		$column = $this->change((array) $column, $value);
+
+		$schema->set($table . '.columns.' . $name, $column);
 
 		$schemaModel->saveVersion(null, $schema);
+
+		$this->out()->out("New {$this->target} saved.");
 
 		return true;
 	}
 
 	protected function change($column, $value)
 	{
+		if (isset($column['Rename']))
+		{
+			$this->out()->out(sprintf('Current rename setting is: %s => %s', $column['Field'], $column['Rename']));
+		}
+
+		$value = $this->out()->in('Enter new name:');
+
+		if (!$value)
+		{
+			throw new \Exception('Cancelled.');
+		}
+
 		$column['Rename'] = $value;
 
 		return $column;

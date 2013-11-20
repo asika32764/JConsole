@@ -5,6 +5,7 @@ namespace Sqlsync\Exporter;
 use Sqlsync\Model\Table;
 use Sqlsync\Model\Track;
 use Symfony\Component\Yaml\Dumper;
+use VerbalExpressions\PHPVerbalExpressions\VerbalExpressions;
 
 class YamlExporter extends AbstractExporter
 {
@@ -62,6 +63,7 @@ class YamlExporter extends AbstractExporter
 		// Handle column details
 		foreach ($columns as &$column)
 		{
+			// Unsigned
 			if (strpos($column['Type'], 'unsigned'))
 			{
 				$column['Unsigned'] = true;
@@ -71,6 +73,17 @@ class YamlExporter extends AbstractExporter
 			{
 				$column['Unsigned'] = false;
 			}
+
+			/*
+			// Type and length
+			$match = array();
+
+			if (preg_match('/^(.*)\((.*)\)$/', $column['Type'], $match))
+			{
+				$column['Type']   = $match[1];
+				$column['Length'] = $match[2];
+			}
+			*/
 
 			unset($column['Privileges']);
 			unset($column['Extra']);
