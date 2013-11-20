@@ -7,22 +7,21 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sqlsync\Column\Change;
+namespace Command\Sqlsync\Column\Length;
 
 use JConsole\Command\JCommand;
-use Sqlsync\Model\Column;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Change
+ * Class Length
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Change extends JCommand
+class Length extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -36,21 +35,21 @@ class Change extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'change';
+	protected $name = 'length';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Change column schema.';
+	protected $description = 'Set length.';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'change <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'length <cmd><command></cmd> <option>[option]</option>';
 
 	/**
 	 * Configure command information.
@@ -69,29 +68,6 @@ class Change extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$model = new Column;
-
-		$column = $model->getColumnSchema('#__assets', 'id');
-
-		$schema = $this->ask($column);
-
-		$schema->saveVersion(null, $column);
-
-		return true;
-	}
-
-	protected function ask($column)
-	{
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Type = $this->in("New column name, empty skip:");
-
-		$column->Null = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
+		return parent::doExecute();
 	}
 }

@@ -7,22 +7,23 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sqlsync\Column\Change;
+namespace Command\Sqlsync\Column\Rename;
 
 use JConsole\Command\JCommand;
 use Sqlsync\Model\Column;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Change
+ * Class Rename
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Change extends JCommand
+class Rename extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -36,21 +37,21 @@ class Change extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'change';
+	protected $name = 'rename';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Change column schema.';
+	protected $description = 'Rename column';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'change <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'rename <cmd><command></cmd> <option>[option]</option>';
 
 	/**
 	 * Configure command information.
@@ -69,29 +70,25 @@ class Change extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$model = new Column;
+		$schemaModel = new Schema;
 
-		$column = $model->getColumnSchema('#__assets', 'id');
+		$schema = $schemaModel->getCurrent();
 
-		$schema = $this->ask($column);
+		$column = $schema->get('#__assets' . '.columns.' . 'id');
 
-		$schema->saveVersion(null, $column);
+		$column = $this->change((array) $column, 'id2');
+
+		$schema->set('#__assets' . '.columns.' . 'id', $column);
+
+		$schemaModel->saveVersion(null, $schema);
 
 		return true;
 	}
 
-	protected function ask($column)
+	protected function change($column, $value)
 	{
-		$column->Rename = $this->in("New column name, empty skip:");
+		$column['Rename'] = $value;
 
-		$column->Type = $this->in("New column name, empty skip:");
-
-		$column->Null = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
+		return $column;
 	}
 }

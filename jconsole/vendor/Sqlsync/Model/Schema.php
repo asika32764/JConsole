@@ -5,6 +5,7 @@ namespace Sqlsync\Model;
 use Joomla\Registry\Registry;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
+use Symfony\Component\Yaml\Dumper;
 
 class Schema extends \JModelDatabase
 {
@@ -23,22 +24,7 @@ class Schema extends \JModelDatabase
 	{
 		$content = $this->export(false, false);
 
-		$path    = $this->initPath;
-
-		if (file_exists($path))
-		{
-			$msg = "Already initialised.\nFile in: " . $path;
-
-			throw new \RuntimeException($msg);
-		}
-
-		\JFile::write($path, $content);
-
-		$state   = $this->getState();
-
-		// $state->set('dump.version.new', $version);
-
-		$state->set('dump.path', $path);
+		$this->saveInit($content);
 
 		return true;
 	}
@@ -62,17 +48,53 @@ class Schema extends \JModelDatabase
 
 		$content = $this->export(false, false);
 
-		$path    = $this->getCurrentPath($version);
+		$this->saveVersion($version, $content);
 
-		\JFile::write($path, $content);
-
-		$state   = $this->getState();
-
-		$state->set('dump.version.new', $version);
-
-		$state->set('dump.path', $path);
+		$this->state->set('dump.version.new', $version);
 
 		return true;
+	}
+
+	public function save($path, $content)
+	{
+		if ($content instanceof Registry)
+		{
+			$content = $content->toArray();
+
+			$dumper = new Dumper;
+
+			$content = $dumper->dump($content, 3, 0);
+		}
+
+		if (!\JFile::write($path, $content))
+		{
+			throw new \RuntimeException(sprintf('Save schema "%" fail.', $path));
+		}
+
+		$this->state->set('dump.path', $path);
+
+		return true;
+	}
+
+	public function saveInit($content)
+	{
+		if (file_exists($this->initPath))
+		{
+			$msg = "Already initialised.\nFile in: " . $this->initPath;
+
+			throw new \RuntimeException($msg);
+		}
+
+		return $this->save($this->initPath, $content);
+	}
+
+	public function saveVersion($version, $content)
+	{
+		$version = $version ?: $this->getCurrentVersion();
+
+		$path = $this->getVersionPath($version);
+
+		return $this->save($path, $content);
 	}
 
 	public function hasInit()
@@ -162,5 +184,23 @@ class Schema extends \JModelDatabase
 		$version = $this->getCurrentVersion();
 
 		return $this->getVersionPath($version);
+	}
+
+	public function objectToArray($d)
+	{
+		if (is_object($d))
+		{
+			$d = get_object_vars($d);
+		}
+
+		if (is_array($d))
+		{
+			return array_map(array($this, __FUNCTION__), $d);
+		}
+		else
+		{
+			// Return array
+			return $d;
+		}
 	}
 }

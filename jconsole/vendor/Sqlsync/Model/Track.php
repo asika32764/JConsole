@@ -24,11 +24,13 @@ class Track extends \JModelBase
 	{
 		$track = new Registry;
 
-		if (file_exists($this->file))
+		if (!file_exists($this->file))
 		{
-			$track->loadFile($this->global, 'yaml')
-				->loadFile($this->file, 'yaml');
+			file_put_contents($this->file, '');
 		}
+
+		$track->loadFile($this->global, 'yaml')
+			->loadFile($this->file, 'yaml');
 
 		return $track;
 	}

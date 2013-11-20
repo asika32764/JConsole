@@ -41,6 +41,11 @@ abstract class Factory
 
 		$userConfig = SQLSYNC_RESOURCE . '/config.yml';
 
+		if (!file_exists($userConfig))
+		{
+			file_put_contents($userConfig, '');
+		}
+
 		$config = new Config;
 
 		$config->loadFile($defaultConfig, 'yaml')
