@@ -15,19 +15,23 @@ class Schema extends \JModelDatabase
 
 	public $schemaPath;
 
+	public $backupPath;
+
 	public function __construct()
 	{
 		parent::__construct();
 
 		$this->schemaPath = ProfileHelper::getPath();
+
+		$this->backupPath = JPATH_ROOT . '/tmp/backup.sql';
 	}
 
-	public function export($type = 'yaml')
+	public function export($type = 'yaml', $ignoreTrack = false, $prefixOnly = false)
 	{
 		$expoter = AbstractExporter::getInstance($type);
 
 		/** @var $expoter AbstractExporter */
-		$content = $expoter->export(false, false);
+		$content = $expoter->export($ignoreTrack, $prefixOnly);
 
 		$result = $this->save($this->getPath($type), $content);
 
@@ -61,6 +65,40 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
+	public function backup()
+	{
+		$expoter = AbstractExporter::getInstance('sql');
+
+		/** @var $expoter AbstractExporter */
+		$content = $expoter->export(true, false);
+
+		$result = $this->save($this->backupPath, $content);
+
+		$this->state->set('dump.path', $this->backupPath);
+
+		return $result;
+	}
+
+	public function restore()
+	{
+		if (!file_exists($this->backupPath))
+		{
+			throw new \RuntimeException('No backup file, please backup first.');
+		}
+
+		$model = new Database;
+
+		$content = file_get_contents($this->backupPath);
+
+		$model->dropAllTables();
+
+		$model->import($content);
+
+		$this->state->set('import.queries', $model->getState()->get('import.queries'));
+
+		return true;
+	}
+
 	public function create($force = false, $type = 'yaml')
 	{
 		return $this->create($type);
@@ -74,7 +112,9 @@ class Schema extends \JModelDatabase
 
 		$importer->import($schema);
 
-		exit('Schema::import');
+		$this->state->set('import.analyze', $importer->getState()->get('import.analyze'));
+
+		return true;
 	}
 
 	public function load($type = 'yaml')

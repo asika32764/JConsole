@@ -3,7 +3,6 @@
 namespace Sqlsync\Importer;
 
 use Joomla\Utilities\ArrayHelper;
-use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Model\Table;
 use Symfony\Component\Yaml\Parser;
 
@@ -20,6 +19,8 @@ class YamlImporter extends AbstractImporter
 	protected $tables;
 
 	protected $debug = false;
+
+	protected $analyze = array();
 
 	public function import($content)
 	{
@@ -46,8 +47,9 @@ class YamlImporter extends AbstractImporter
 			$this->changeDatas($tableName, ArrayHelper::getValue($table, 'data', array()), ArrayHelper::getValue($table, 'columns', array()));
 		}
 
-		print_r($this->sql);
-		die;
+		$this->state->set('import.analyze', $this->analyze);
+
+		return true;
 	}
 
 	public function renameTable($table)
@@ -74,6 +76,8 @@ class YamlImporter extends AbstractImporter
 			$this->sql[] = $sql = 'RENAME TABLE ' . $tableName . ' TO ' . $newName;
 
 			$this->execute($sql);
+
+			$this->analyze('Table', 'Rename');
 
 			return $this->debug ? false : $newName;
 		}
@@ -111,6 +115,8 @@ class YamlImporter extends AbstractImporter
 		$this->sql[] = $sql = "CREATE TABLE IF NOT EXISTS `{$name}` (\n  " . implode(",\n  ", $addColumns) . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
 		$this->execute($sql);
+
+		$this->analyze('Table', 'Created');
 
 		return $name;
 	}
@@ -170,6 +176,8 @@ class YamlImporter extends AbstractImporter
 
 			$this->execute($sql);
 
+			$this->analyze('Column', 'Rename');
+
 			return $this->debug ? false : $newName;
 		}
 
@@ -194,6 +202,8 @@ class YamlImporter extends AbstractImporter
 			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$columnName} {$column['Type']} {$null} {$ai} {$comment} {$position}";
 
 			$this->execute($sql);
+
+			$this->analyze('Column', 'Added');
 
 			return true;
 		}
@@ -228,6 +238,8 @@ class YamlImporter extends AbstractImporter
 
 		$this->execute($sql);
 
+		$this->analyze('Column', 'Changed');
+
 		return true;
 
 		// print_r($oldColumn);print_r($column);die;
@@ -246,6 +258,8 @@ class YamlImporter extends AbstractImporter
 				$this->sql[] = $sql = "ALTER TABLE {$tableName} DROP {$column}";
 
 				$this->execute($sql);
+
+				$this->analyze('Column', 'Droped');
 			}
 		}
 	}
@@ -301,9 +315,9 @@ class YamlImporter extends AbstractImporter
 			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$indexType} `{$indexName}` (" . implode(', ', $columns) . ")";
 		}
 
-
-
 		$this->execute($sql);
+
+		$this->analyze('Index', 'Changed');
 
 		return true;
 	}
@@ -333,6 +347,8 @@ class YamlImporter extends AbstractImporter
 		}
 
 		$this->execute($sql);
+
+		$this->analyze('Index', 'Droped');
 
 		return true;
 	}
@@ -374,6 +390,8 @@ class YamlImporter extends AbstractImporter
 		$this->sql[] = $sql = (string) "INSERT INTO `{$tableName}` " . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
 
 		$this->execute($sql);
+
+		$this->analyze('Data', 'Inserted');
 	}
 
 	protected function getTableList()
@@ -438,6 +456,20 @@ class YamlImporter extends AbstractImporter
 		}
 
 		return $indexesIndex;
+	}
+
+	protected function analyze($schema, $action)
+	{
+		if (empty($this->analyze[$schema][$action]))
+		{
+			$this->analyze[$schema][$action] = 1;
+
+			return true;
+		}
+
+		$this->analyze[$schema][$action]++;
+
+		return true;
 	}
 
 	protected function execute($sql)

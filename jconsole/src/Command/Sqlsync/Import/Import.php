@@ -87,7 +87,9 @@ class Import extends JCommand
 
 		if (file_exists($path))
 		{
-			$yes = $this->out()->in('This action will compare and update your sql schema (y)es|(n)o?');
+			$yes = $this->out()->in('This action will compare and update your sql schema (y)es or (n)o: ');
+
+			$yes = strtolower($yes);
 
 			if ($yes != 'y' && $yes != 'yes')
 			{
@@ -98,34 +100,43 @@ class Import extends JCommand
 		}
 		else
 		{
-			throw new \RuntimeException('Schema file not exitst.');
+			throw new \RuntimeException('Schema file not exists.');
 		}
 
 		$force = $this->getOption('f');
 
+		if ($force)
+		{
+			throw new \RuntimeException('Sorry, force mode not prepare yet...');
+		}
+
+		$state = $model->getState();
+
+		$this->out()->out('Backing up...');
+
+		// Backup
+		$model->backup();
+
+		$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
+
+		$this->out()->out('Importing schema...');
+
+		// Import
 		$model->import($force, $type);
 
-		/*
-		$model = new Database;
+		// Report
+		$analyze = $state->get('import.analyze');
 
-		$list = $model->getExported();
+		foreach ($analyze as $table => $schema)
+		{
+			$this->out()->out($table . ':');
 
-		$file = array_shift($list);
+			foreach ($schema as $action => $count)
+			{
+				$this->out('    ' . $action . ': ' . $count);
+			}
+		}
 
-		// Message
-		$this->out()->out(sprintf("The newest sql export is: %s", basename($file)));
-
-		$this->out('Importing...');
-
-		// Do importing
-		$model->importFromFile($file);
-
-		// Message
-		$queries = $model->getState()->get('import.queries', 0);
-
-		$this->out(sprintf("Import success. %s queries executed.", $queries));
-
-		return true;
-		*/
+		return;
 	}
 }
