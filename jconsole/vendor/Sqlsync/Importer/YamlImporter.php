@@ -12,6 +12,10 @@ class YamlImporter extends AbstractImporter
 
 	protected $columns = array();
 
+	protected $indexes = array();
+
+	protected $dataPks = array();
+
 	public function import($content)
 	{
 		$parser = new Parser;
@@ -26,6 +30,10 @@ class YamlImporter extends AbstractImporter
 			$tableName = $newTableName ?: $tableName;
 
 			$this->changeColumns($tableName, ArrayHelper::getValue($table, 'columns', array()));
+
+			$this->changeIndexes($tableName, ArrayHelper::getValue($table, 'index', array()));
+
+			$this->changeDatas($tableName, ArrayHelper::getValue($table, 'data', array()));
 		}
 
 		print_r($this->sql);
@@ -55,7 +63,7 @@ class YamlImporter extends AbstractImporter
 		{
 			$this->sql[] = $sql = 'RENAME TABLE ' . $tableName . ' TO ' . $newName;
 
-			// $this->db->setQuery($sql)->execute();
+			$this->execute($sql);
 
 			return false;//$newName;
 		}
@@ -89,6 +97,8 @@ class YamlImporter extends AbstractImporter
 		}
 
 		$this->dropColumns($tableName, $columns);
+
+		return true;
 	}
 
 	public function renameColumn($tableName, $columnName, $column)
@@ -114,7 +124,7 @@ class YamlImporter extends AbstractImporter
 		{
 			$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$oldName} {$newName} {$column['Type']}";
 
-			// $this->db->setQuery($sql)->execute();
+			$this->execute($sql);
 
 			return false;// $newName;
 		}
@@ -139,7 +149,7 @@ class YamlImporter extends AbstractImporter
 			// Build sql
 			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$columnName} {$column['Type']} {$null} {$ai} {$comment} {$position}";
 
-			// $this->db->setQuery($sql)->execute();
+			$this->execute($sql);
 
 			return true;
 		}
@@ -170,7 +180,7 @@ class YamlImporter extends AbstractImporter
 		// Build sql
 		$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$columnName} {$columnName} {$column['Type']} {$null} {$ai} {$comment}";
 
-		// $this->db->setQuery($sql)->execute();
+		$this->execute($sql);
 
 		return true;
 
@@ -189,9 +199,106 @@ class YamlImporter extends AbstractImporter
 			{
 				$this->sql[] = $sql = "ALTER TABLE {$tableName} DROP {$column}";
 
-				// $this->db->setQuery($sql)->execute();
+				$this->execute($sql);
 			}
 		}
+	}
+
+	protected function changeIndexes($tableName, $indexes)
+	{
+		$oldIndexes = $this->getOldIndexes($tableName);
+
+		$oldIdxIdx = $this->getIndexesIndex($oldIndexes);
+
+		$newIdxIdx = $this->getIndexesIndex($indexes);
+
+		foreach ($newIdxIdx as $indexName => $columns)
+		{
+			$oldColumns = ArrayHelper::getValue($oldIdxIdx, $indexName);
+
+			if ($oldColumns != $columns)
+			{
+				$this->changeIndex($tableName, $indexName, $columns, $indexes, (boolean) $oldColumns);
+			}
+		}
+
+		$this->dropIndexes($tableName, $oldIdxIdx, $newIdxIdx);
+
+		return true;
+	}
+
+	protected function changeIndex($tableName, $indexName, $columns,  $indexes, $noDrop = true)
+	{
+		$index = null;
+
+		foreach ($indexes as $idx)
+		{
+			if ($idx['Key_name'] == $indexName)
+			{
+				$index = $idx;
+			}
+		}
+
+		if ($noDrop)
+		{
+			$this->dropIndex($tableName, $indexName);
+		}
+
+		if ($index['Key_name'] == 'PRIMARY')
+		{
+			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD PRIMARY KEY (" . implode(', ', $columns) . ")";
+		}
+		else
+		{
+			$indexType = $index['Non_unique'] ? 'INDEX' : 'UNIQUE';
+
+			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$indexType} `{$indexName}` (" . implode(', ', $columns) . ")";
+		}
+
+
+
+		$this->execute($sql);
+
+		return true;
+	}
+
+	protected function dropIndexes($tableName, $oldIdxIdx, $newIdxIdx)
+	{
+		foreach ($oldIdxIdx as $oldIdx => $columns)
+		{
+			if (!isset($newIdxIdx[$oldIdx]))
+			{
+				$this->dropIndex($tableName, $oldIdx);
+			}
+		}
+
+		return true;
+	}
+
+	protected function dropIndex($tableName, $indexName)
+	{
+		if ($indexName == 'PRIMARY')
+		{
+			$this->sql[] = $sql = "ALTER TABLE {$tableName} DROP PRIMARY KEY";
+		}
+		else
+		{
+			$this->sql[] = $sql = "ALTER TABLE {$tableName} DROP INDEX `{$indexName}`";
+		}
+
+		$this->execute($sql);
+
+		return true;
+	}
+
+	protected function changeDatas($tableName, $datas)
+	{
+		if (!$datas)
+		{
+			return false;
+		}
+
+
 	}
 
 	protected function getColumnList($table)
@@ -213,4 +320,47 @@ class YamlImporter extends AbstractImporter
 		return ArrayHelper::getValue($list, $columnName);
 	}
 
+	protected function getOldIndexes($table)
+	{
+		if (!empty($this->indexes[$table]))
+		{
+			return $this->indexes[$table];
+		}
+
+		$indexes = $this->db->setQuery("SHOW INDEX FROM `{$table}`")->loadAssocList();
+
+		return $this->indexes[$table] = $indexes;
+	}
+
+	protected function getIndexesIndex($indexes)
+	{
+		$indexesIndex = array();
+
+		foreach ($indexes as $index)
+		{
+			$keyname = $index['Key_name'];
+
+			if (empty($indexesIndex[$keyname]))
+			{
+				$indexesIndex[$keyname] = array();
+			}
+
+			$indexesIndex[$keyname][] = $index['Column_name'];
+		}
+
+		return $indexesIndex;
+	}
+
+	protected function getOldDataPks($table)
+	{
+		if (!empty($this->dataPks[$table]))
+		{
+			return $this->dataPks[$table];
+		}
+	}
+
+	protected function execute($sql)
+	{
+		// return $this->db->setQuery($sql)->execute();
+	}
 }
