@@ -4,6 +4,7 @@ namespace Sqlsync\Importer;
 
 use Joomla\Utilities\ArrayHelper;
 use Sqlsync\Exporter\AbstractExporter;
+use Sqlsync\Model\Table;
 use Symfony\Component\Yaml\Parser;
 
 class YamlImporter extends AbstractImporter
@@ -16,6 +17,10 @@ class YamlImporter extends AbstractImporter
 
 	protected $dataPks = array();
 
+	protected $tables;
+
+	protected $debug = false;
+
 	public function import($content)
 	{
 		$parser = new Parser;
@@ -27,13 +32,18 @@ class YamlImporter extends AbstractImporter
 		{
 			$newTableName = $this->renameTable($table);
 
+			if (!$newTableName)
+			{
+				$newTableName = $this->addTable($table);
+			}
+
 			$tableName = $newTableName ?: $tableName;
 
 			$this->changeColumns($tableName, ArrayHelper::getValue($table, 'columns', array()));
 
 			$this->changeIndexes($tableName, ArrayHelper::getValue($table, 'index', array()));
 
-			$this->changeDatas($tableName, ArrayHelper::getValue($table, 'data', array()));
+			$this->changeDatas($tableName, ArrayHelper::getValue($table, 'data', array()), ArrayHelper::getValue($table, 'columns', array()));
 		}
 
 		print_r($this->sql);
@@ -47,11 +57,11 @@ class YamlImporter extends AbstractImporter
 
 		$tableName = null;
 
+		$tableList = $this->getTableList();
+
 		foreach ($from as $fromName)
 		{
-			$result = $this->db->setQuery($this->queryHelper->showColumns($fromName))->loadResult();
-
-			if ($result && $newName != $fromName)
+			if (in_array($fromName, $tableList) && $newName != $fromName)
 			{
 				$tableName = $fromName;
 
@@ -65,10 +75,44 @@ class YamlImporter extends AbstractImporter
 
 			$this->execute($sql);
 
-			return false;//$newName;
+			return $this->debug ? false : $newName;
 		}
 
 		return false;
+	}
+
+	public function addTable($table)
+	{
+		$tableList = $this->getTableList();
+		$name = ArrayHelper::getValue($table, 'name', array());
+
+		if (in_array($name, $tableList))
+		{
+			return $name;
+		}
+
+		$columns = ArrayHelper::getValue($table, 'columns', array());
+
+		$addColumns = array();
+
+		foreach ($columns as $column)
+		{
+			$null = ($column['Null'] == 'NO') ? ' NOT NULL' : '';
+
+			@$ai = $column['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '';
+
+			$comment = $column['Comment'] ? ' COMMENT ' . $this->db->quote($column['Comment']) : '';
+
+			$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+
+			$addColumns[] = "{$this->db->quoteName($column['Field'])} {$column['Type']}{$null}{$default}{$ai}{$comment}";
+		}
+
+		$this->sql[] = $sql = "CREATE TABLE IF NOT EXISTS `{$name}` (\n  " . implode(",\n  ", $addColumns) . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+
+		$this->execute($sql);
+
+		return $name;
 	}
 
 	public function changeColumns($tableName, $columns)
@@ -126,7 +170,7 @@ class YamlImporter extends AbstractImporter
 
 			$this->execute($sql);
 
-			return false;// $newName;
+			return $this->debug ? false : $newName;
 		}
 
 		return false;
@@ -171,14 +215,16 @@ class YamlImporter extends AbstractImporter
 			return false;
 		}
 
-		$null = ($column['Null'] == 'NO') ? 'NOT NULL' : '';
+		$null = ($column['Null'] == 'NO') ? ' NOT NULL' : '';
 
-		@$ai = $column['Extra'] == 'auto_increment' ? 'AUTO_INCREMENT' : '';
+		@$ai = $column['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '';
 
-		$comment = $column['Comment'] ? 'COMMENT ' . $this->db->quote($column['Comment']) : '';
+		$comment = $column['Comment'] ? ' COMMENT ' . $this->db->quote($column['Comment']) : '';
+
+		$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
 
 		// Build sql
-		$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$columnName} {$columnName} {$column['Type']} {$null} {$ai} {$comment}";
+		$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$columnName} {$columnName} {$column['Type']}{$null}{$default}{$ai}{$comment}";
 
 		$this->execute($sql);
 
@@ -291,14 +337,57 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
-	protected function changeDatas($tableName, $datas)
+	protected function changeDatas($tableName, $datas, $columns)
 	{
 		if (!$datas)
 		{
 			return false;
 		}
 
+		$query = $this->db->getQuery(true);
 
+		$values = array();
+
+		foreach ($datas as $data)
+		{
+			$data = (array) $data;
+
+			$data = array_map(
+				function($d) use ($query)
+				{
+					return $query->q($d);
+				},
+				$data
+			);
+
+			$values[] = implode(', ', $data);
+
+			$this->rowCount++;
+		}
+
+		// Clean
+		$this->sql[] = $sql = "TRUNCATE TABLE {$tableName}";
+
+		$this->execute($sql);
+
+		// Add
+		$this->sql[] = $sql = (string) "INSERT INTO `{$tableName}` " . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
+
+		$this->execute($sql);
+	}
+
+	protected function getTableList()
+	{
+		if (!empty($this->tables))
+		{
+			return $this->tables;
+		}
+
+		$tableModel = new Table;
+
+		$tables = $tableModel->listAll();
+
+		return $this->tables = $tables;
 	}
 
 	protected function getColumnList($table)
@@ -351,16 +440,8 @@ class YamlImporter extends AbstractImporter
 		return $indexesIndex;
 	}
 
-	protected function getOldDataPks($table)
-	{
-		if (!empty($this->dataPks[$table]))
-		{
-			return $this->dataPks[$table];
-		}
-	}
-
 	protected function execute($sql)
 	{
-		// return $this->db->setQuery($sql)->execute();
+		return $this->debug ? false : $this->db->setQuery($sql)->execute();
 	}
 }
