@@ -7,22 +7,22 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sqlsync\Column\Type;
+namespace Command\Sqlsync\Restore;
 
-use Command\Sqlsync\Column\Rename\Rename;
-use Sqlsync\Helper\TypeValidator;
+use JConsole\Command\JCommand;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Type
+ * Class Restore
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Type extends Rename
+class Restore extends JCommand
 {
 	/**
 	 * An enabled flag.
@@ -36,23 +36,21 @@ class Type extends Rename
 	 *
 	 * @var  string
 	 */
-	protected $name = 'type';
+	protected $name = 'restore';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Set type and length';
+	protected $description = 'Restore to pervious point.';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <option>[new type]</option> <option>[option]</option>';
-
-	protected $target = 'type';
+	protected $usage = 'restore <cmd><command></cmd> <option>[option]</option>';
 
 	/**
 	 * Configure command information.
@@ -71,34 +69,38 @@ class Type extends Rename
 	 */
 	protected function doExecute()
 	{
-		return parent::doExecute();
-	}
+		$model = new Schema;
 
-	protected function change($column, $value)
-	{
-		$this->out()->out(sprintf('Current is: %s', $column['Type']));
+		$path = $model->backupPath;
 
-		$valid = true;
-
-		do
+		if (file_exists($path))
 		{
-			if (!$valid)
+			$yes = $this->out()->in('Are you sure you want to restore? (y)es or (n)o: ');
+
+			$yes = strtolower($yes);
+
+			if ($yes != 'y' && $yes != 'yes')
 			{
-				$this->out()->out('Invalid value.');
+				$this->out('cancelled.');
+
+				return;
 			}
-
-			$value = $this->in('Enter new type: ');
 		}
-
-		while (!($valid = TypeValidator::validate($value)));
-
-		if (!$value)
+		else
 		{
-			throw new \Exception('Cancelled.');
+			throw new \RuntimeException('Backup file not exists.');
 		}
 
-		$column['Type'] = $value;
+		$this->out()->out('Restoring...');
 
-		return $column;
+		$model->restore();
+
+		$state = $model->getState();
+
+		$queries = $state->get('import.queries');
+
+		$this->out()->out(sprintf('Restore success, %s queries executed.', $queries));
+
+		return;
 	}
 }

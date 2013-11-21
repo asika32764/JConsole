@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Column\Rename;
 
 use JConsole\Command\JCommand;
+use Joomla\Registry\Registry;
 use Sqlsync\Model\Column;
 use Sqlsync\Model\Schema;
 
@@ -90,42 +91,42 @@ class Rename extends JCommand
 
 		$schemaModel = new Schema;
 
-		$schema = $schemaModel->getCurrent();
+		/** @var $schema Registry */
+		$schema = $schemaModel->load();
 
-		$column = $schema->get($table . '.columns.' . $name);
+		// Get this column
+		$column = (array) $schema->get($table . '.columns.' . $name);
 
 		if (!$column)
 		{
 			throw new \UnexpectedValueException('We are not tracking this table or column of this table not exists.');
 		}
 
-		$column = $this->change((array) $column, $value);
-
-		$schema->set($table . '.columns.' . $name, $column);
-
-		$schemaModel->saveVersion(null, $schema);
-
-		$this->out()->out("New {$this->target} saved.");
-
-		return true;
-	}
-
-	protected function change($column, $value)
-	{
-		if (isset($column['Rename']))
+		// Notice
+		if (isset($column['From']))
 		{
-			$this->out()->out(sprintf('Current rename setting is: %s => %s', $column['Field'], $column['Rename']));
+			$this->out()->out(sprintf('Current rename setting is: %s => %s', $column['From'], $column['Field']));
 		}
 
+		// If argument 3 not exists, get input.
 		$value = $value ?: $this->out()->in('Enter new name:');
 
+		// Not input, cancelled.
 		if (!$value)
 		{
 			throw new \Exception('Cancelled.');
 		}
 
-		$column['Rename'] = $value;
+		// Set input value to new name
+		$column['Field'] = $value;
 
-		return $column;
+		// Remove origin
+		$schema->set($table . '.columns.' . $name, $column);
+
+		$schemaModel->save(null, $schema);
+
+		$this->out()->out("Set rename to : " . $value);
+
+		return true;
 	}
 }

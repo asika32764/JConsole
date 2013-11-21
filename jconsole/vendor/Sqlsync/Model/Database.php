@@ -79,4 +79,18 @@ class Database extends \JModelDatabase
 
 		return true;
 	}
+
+	public function dropAllTables()
+	{
+		$tables = $this->db->setQuery('SHOW TABLES')->loadColumn();
+
+		if (!$tables)
+		{
+			return;
+		}
+
+		$this->db->setQuery('DROP TABLE IF EXISTS ' . implode(', ', $tables))->execute();
+
+		return true;
+	}
 }

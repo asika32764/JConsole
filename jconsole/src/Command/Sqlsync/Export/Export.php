@@ -11,10 +11,7 @@ namespace Command\Sqlsync\Export;
 
 
 use JConsole\Command\JCommand;
-use Joomla\Registry\Registry;
-use Sqlsync\Exporter\SqlExporter;
-use Sqlsync\Exporter\YamlExporter;
-use Sqlsync\Model\Database;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
@@ -64,9 +61,9 @@ class Export extends JCommand
 	public function configure()
 	{
 		$this->addOption(
-			array('y', 'yaml', 'yml'),
+			array('s', 'sql'),
 			0,
-			'Use yaml format to export'
+			'Use sql format to export'
 		);
 	}
 
@@ -77,13 +74,27 @@ class Export extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$type = $this->getOption('y') ? 'yaml' : 'sql';
+		$type = $this->getOption('s') ? 'sql' : 'yaml';
 
-		$model = new Database;
+		$model = new Schema;
 
-		$model->save($type);
+		$path = $model->getPath($type);
 
+		if (file_exists($path))
+		{
+			$yes = $this->out()->in('Schema file exists, do you want to override it (y)es|(n)o?');
 
+			if ($yes != 'y' && $yes != 'yes')
+			{
+				$this->out('cancelled.');
+
+				return;
+			}
+		}
+
+		$model->export($type);
+
+		$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
 
 		/*
 		$yaml = $this->getOption('yaml');

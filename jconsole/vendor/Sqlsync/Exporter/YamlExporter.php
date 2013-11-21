@@ -9,7 +9,7 @@ use VerbalExpressions\PHPVerbalExpressions\VerbalExpressions;
 
 class YamlExporter extends AbstractExporter
 {
-	public function export($ignoreTrack = false, $prefixOnly = false)
+	public function export($ignoreTrack = false, $prefixOnly = false, $text = true)
 	{
 		$tableObject = new Table;
 		$trackObject = new Track;
@@ -50,7 +50,9 @@ class YamlExporter extends AbstractExporter
 
 		$dumper = new Dumper;
 
-		return $dumper->dump(json_decode(json_encode($result), true), 3, 0, false, true);
+		$result = json_decode(json_encode($result), true);
+
+		return $text ? $dumper->dump($result, 3, 0, false, true) : $result;
 	}
 
 	protected function getCreateTable($table)
@@ -63,7 +65,7 @@ class YamlExporter extends AbstractExporter
 		// Handle column details
 		foreach ($columns as &$column)
 		{
-			// Unsigned
+			/* // Unsigned
 			if (strpos($column['Type'], 'unsigned'))
 			{
 				$column['Unsigned'] = true;
@@ -72,7 +74,7 @@ class YamlExporter extends AbstractExporter
 			else
 			{
 				$column['Unsigned'] = false;
-			}
+			}*/
 
 			/*
 			// Type and length
@@ -85,8 +87,11 @@ class YamlExporter extends AbstractExporter
 			}
 			*/
 
+			$column['From'] = array($column['Field']);
+
+			unset($column['Key']);
 			unset($column['Privileges']);
-			unset($column['Extra']);
+			// unset($column['Extra']);
 			unset($column['Collation']);
 		}
 
@@ -101,6 +106,8 @@ class YamlExporter extends AbstractExporter
 			unset($index['Index_type']);
 		}
 
+		$result['name'] = $table;
+		$result['from'] = array($table);
 		$result['columns'] = $columns;
 		$result['index'] = $indexes;
 		// $sql = preg_replace('#AUTO_INCREMENT=\S+#is', '', $result[1]);

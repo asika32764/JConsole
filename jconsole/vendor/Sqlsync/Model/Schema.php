@@ -5,60 +5,47 @@ namespace Sqlsync\Model;
 use Joomla\Registry\Registry;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
+use Sqlsync\Importer\AbstractImporter;
 use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Parser;
 
 class Schema extends \JModelDatabase
 {
 	protected $versionModel;
 
-	public $initPath;
+	public $schemaPath;
+
+	public $backupPath;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$this->initPath = ProfileHelper::getPath() . '/schema/init.yml';
+		$this->schemaPath = ProfileHelper::getPath();
+
+		$this->backupPath = JPATH_ROOT . '/tmp/backup.sql';
 	}
 
-	public function init()
+	public function export($type = 'yaml', $ignoreTrack = false, $prefixOnly = false)
 	{
-		$content = $this->export(false, false);
+		$expoter = AbstractExporter::getInstance($type);
 
-		$this->saveInit($content);
+		/** @var $expoter AbstractExporter */
+		$content = $expoter->export($ignoreTrack, $prefixOnly);
 
-		return true;
+		$result = $this->save($this->getPath($type), $content);
+
+		$this->state->set('dump.count.tables', $expoter->getState()->get('dump.count.tables'));
+
+		$this->state->set('dump.count.rows', $expoter->getState()->get('dump.count.rows'));
+
+		return $result;
 	}
 
-	public function create($force = false)
+	public function save($path = null, $content = null)
 	{
-		$version = $this->getCurrentVersion();
+		$path = $path ?: $this->getPath('yaml');
 
-		$list = $this->listAllVersion();
-
-		/*
-		if (in_array($version, $list) && !$force)
-		{
-			throw new \RuntimeException('Now is newest version: ' . $version);
-		}
-		*/
-
-		$versionModel = $this->getVersionModel();
-
-		$versionModel->addNew();
-
-		$version = $this->getCurrentVersion();
-
-		$content = $this->export(false, false);
-
-		$this->saveVersion($version, $content);
-
-		$this->state->set('dump.version.new', $version);
-
-		return true;
-	}
-
-	public function save($path, $content)
-	{
 		if ($content instanceof Registry)
 		{
 			$content = $content->toArray();
@@ -78,121 +65,72 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
-	public function saveInit($content)
+	public function backup()
 	{
-		if (file_exists($this->initPath))
-		{
-			$msg = "Already initialised.\nFile in: " . $this->initPath;
-
-			throw new \RuntimeException($msg);
-		}
-
-		return $this->save($this->initPath, $content);
-	}
-
-	public function saveVersion($version, $content)
-	{
-		$version = $version ?: $this->getCurrentVersion();
-
-		$path = $this->getVersionPath($version);
-
-		return $this->save($path, $content);
-	}
-
-	public function hasInit()
-	{
-		$path    = $this->initPath;
-
-		if (file_exists($path))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	public function export($ignoreTrack = false, $onlyPrefix = false)
-	{
-		$expoter = AbstractExporter::getInstance('yaml');
+		$expoter = AbstractExporter::getInstance('sql');
 
 		/** @var $expoter AbstractExporter */
-		$result = $expoter->export($ignoreTrack, $onlyPrefix);
+		$content = $expoter->export(true, false);
 
-		$this->state->set('dump.count.tables', $expoter->getState()->get('dump.count.tables'));
+		$result = $this->save($this->backupPath, $content);
 
-		$this->state->set('dump.count.rows', $expoter->getState()->get('dump.count.rows'));
+		$this->state->set('dump.path', $this->backupPath);
 
 		return $result;
 	}
 
-
-	public function getCurrentVersion()
+	public function restore()
 	{
-		$version = $this->getVersionModel();
-
-		return $version->getCurrent();
-	}
-
-	public function getPerviousVersion()
-	{
-		$version = $this->getVersionModel();
-
-		return $version->getPervious();
-	}
-
-	public function listAllVersion()
-	{
-		$version = $this->getVersionModel();
-
-		return $version->listAll();
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getVersionModel()
-	{
-		if ($this->versionModel)
+		if (!file_exists($this->backupPath))
 		{
-			return $this->versionModel;
+			throw new \RuntimeException('No backup file, please backup first.');
 		}
 
-		return $this->versionModel = new Version;
+		$model = new Database;
+
+		$content = file_get_contents($this->backupPath);
+
+		$model->dropAllTables();
+
+		$model->import($content);
+
+		$this->state->set('import.queries', $model->getState()->get('import.queries'));
+
+		return true;
 	}
 
-	public function getCurrent()
+	public function create($force = false, $type = 'yaml')
 	{
-		$version = $this->getCurrentVersion();
-
-		return $this->loadSchema($version);
+		return $this->create($type);
 	}
 
-	public function loadSchema($version)
+	public function import($force = false, $type = 'yaml')
 	{
-		$path = $this->getVersionPath($version);
+		$schema = file_get_contents($this->getPath($type));
 
+		$importer = AbstractImporter::getInstance($type);
+
+		$importer->import($schema);
+
+		$this->state->set('import.analyze', $importer->getState()->get('import.analyze'));
+
+		return true;
+	}
+
+	public function load($type = 'yaml')
+	{
 		$schema = new Registry;
 
-		$schema->loadFile($path, 'yaml');
+		$schema->loadFile($this->getPath($type), $type);
 
 		return $schema;
 	}
 
-	public function getPath()
+	public function getPath($type = 'yaml')
 	{
-		return ProfileHelper::getPath() . '/schema';
-	}
+		$ext = ($type == 'yaml') ? 'yml' : $type;
 
-	public function getVersionPath($version = null)
-	{
-		return $this->getPath() . '/' . $version . '/schema.yml';
-	}
-
-	public function getCurrentPath()
-	{
-		$version = $this->getCurrentVersion();
-
-		return $this->getVersionPath($version);
+		return $this->schemaPath . '/schema.' . $ext;
 	}
 
 	public function objectToArray($d)

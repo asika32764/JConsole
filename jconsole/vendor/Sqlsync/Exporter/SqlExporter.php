@@ -90,7 +90,12 @@ class SqlExporter extends AbstractExporter
 			$columns
 		);
 
-		$query->insert($query->quoteName($query->escape($table)))->columns(implode(', ', $columns));
+		/** @var $query \JDatabaseQueryMysqli */
+		$query->insert($query->quoteName($query->escape($table)));
+
+		$columns = ' (' . implode(', ', $columns) . ')';
+
+		$values = array();
 
 		foreach ($datas as $data)
 		{
@@ -104,10 +109,12 @@ class SqlExporter extends AbstractExporter
 				$data
 			);
 
-			$query->values(implode(', ', $data));
+			$values[] = implode(', ', $data);
 
 			$this->rowCount++;
 		}
+
+		$query = $query . $columns . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
 
 		return (string) $query;
 	}

@@ -11,6 +11,7 @@ namespace Command\Sqlsync\Import;
 
 use JConsole\Command\JCommand;
 use Sqlsync\Model\Database;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
@@ -59,7 +60,16 @@ class Import extends JCommand
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		$this->addOption(
+				array('f', 'force'),
+				0,
+				'Force import all, ignore compare.'
+			)
+			->addOption(
+				array('s', 'sql'),
+				0,
+				'Use sql format to export'
+			);
 	}
 
 	/**
@@ -69,25 +79,64 @@ class Import extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$model = new Database;
+		$type = $this->getOption('s') ? 'sql' : 'yaml';
 
-		$list = $model->getExported();
+		$model = new Schema;
 
-		$file = array_shift($list);
+		$path = $model->getPath($type);
 
-		// Message
-		$this->out()->out(sprintf("The newest sql export is: %s", basename($file)));
+		if (file_exists($path))
+		{
+			$yes = $this->out()->in('This action will compare and update your sql schema (y)es or (n)o: ');
 
-		$this->out('Importing...');
+			$yes = strtolower($yes);
 
-		// Do importing
-		$model->importFromFile($file);
+			if ($yes != 'y' && $yes != 'yes')
+			{
+				$this->out('cancelled.');
 
-		// Message
-		$queries = $model->getState()->get('import.queries', 0);
+				return;
+			}
+		}
+		else
+		{
+			throw new \RuntimeException('Schema file not exists.');
+		}
 
-		$this->out(sprintf("Import success. %s queries executed.", $queries));
+		$force = $this->getOption('f');
 
-		return true;
+		if ($force)
+		{
+			throw new \RuntimeException('Sorry, force mode not prepare yet...');
+		}
+
+		$state = $model->getState();
+
+		$this->out()->out('Backing up...');
+
+		// Backup
+		$model->backup();
+
+		$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
+
+		$this->out()->out('Importing schema...');
+
+		// Import
+		$model->import($force, $type);
+
+		// Report
+		$analyze = $state->get('import.analyze');
+
+		foreach ($analyze as $table => $schema)
+		{
+			$this->out()->out($table . ':');
+
+			foreach ($schema as $action => $count)
+			{
+				$this->out('    ' . $action . ': ' . $count);
+			}
+		}
+
+		return;
 	}
 }
