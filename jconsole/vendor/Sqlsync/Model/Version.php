@@ -11,6 +11,8 @@ class Version extends \JModelDatabase
 
 	protected $current;
 
+	protected $pervious;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -44,6 +46,14 @@ class Version extends \JModelDatabase
 		}
 
 		return $this->current = $version;
+	}
+
+	public function getPervious()
+	{
+		/*
+		$list = $this->listAll();
+
+		$list =*/
 	}
 
 	public function addNew()

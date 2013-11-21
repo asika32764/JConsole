@@ -35,10 +35,12 @@ class Schema extends \JModelDatabase
 
 		$list = $this->listAllVersion();
 
+		/*
 		if (in_array($version, $list) && !$force)
 		{
 			throw new \RuntimeException('Now is newest version: ' . $version);
 		}
+		*/
 
 		$versionModel = $this->getVersionModel();
 
@@ -129,6 +131,13 @@ class Schema extends \JModelDatabase
 		$version = $this->getVersionModel();
 
 		return $version->getCurrent();
+	}
+
+	public function getPerviousVersion()
+	{
+		$version = $this->getVersionModel();
+
+		return $version->getPervious();
 	}
 
 	public function listAllVersion()

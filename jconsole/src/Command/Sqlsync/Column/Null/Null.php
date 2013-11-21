@@ -7,22 +7,22 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Command\Sqlsync\Column\Change;
+namespace Command\Sqlsync\Column\Null;
 
-use JConsole\Command\JCommand;
-use Sqlsync\Model\Column;
+use Command\Sqlsync\Column\Rename\Rename;
+use Sqlsync\Helper\TypeValidator;
 
 defined('JPATH_CLI') or die;
 
 /**
- * Class Change
+ * Class Type
  *
  * @package     Joomla.Cli
  * @subpackage  JConsole
  *
  * @since       3.2
  */
-class Change extends JCommand
+class Null extends Rename
 {
 	/**
 	 * An enabled flag.
@@ -36,21 +36,23 @@ class Change extends JCommand
 	 *
 	 * @var  string
 	 */
-	protected $name = 'change';
+	protected $name = 'null';
 
 	/**
 	 * The command description.
 	 *
 	 * @var  string
 	 */
-	protected $description = 'Change column schema.';
+	protected $description = 'Set allow null.';
 
 	/**
 	 * The usage to tell user how to use this command.
 	 *
 	 * @var string
 	 */
-	protected $usage = 'change <cmd><command></cmd> <option>[option]</option>';
+	protected $usage = 'null <cmd><table name></cmd> <cmd><column name></cmd> <option>[allow null]</option> <option>[option]</option>';
+
+	protected $target = 'ALLOW NULL';
 
 	/**
 	 * Configure command information.
@@ -69,29 +71,33 @@ class Change extends JCommand
 	 */
 	protected function doExecute()
 	{
-		$model = new Column;
-
-		$column = $model->getColumnSchema('#__assets', 'id');
-
-		$schema = $this->ask($column);
-
-		$schema->saveVersion(null, $column);
-
-		return true;
+		return parent::doExecute();
 	}
 
-	protected function ask($column)
+	protected function change($column, $value)
 	{
-		$column->Rename = $this->in("New column name, empty skip:");
+		if (!$value)
+		{
+			$this->out()->out(sprintf('Current ALLOW NULL is: %s', $column['Null']));
 
-		$column->Type = $this->in("New column name, empty skip:");
+			$value = $this->out()->in('Setting ALLOW NULL (y|yes) or (n|no): ');
+		}
 
-		$column->Null = $this->in("New column name, empty skip:");
+		if (!$value)
+		{
+			throw new \Exception('Cancelled.');
+		}
+		elseif ($value == 'y' || $value == 'yes')
+		{
+			$value = 'YES';
+		}
+		else
+		{
+			$value = 'NO';
+		}
 
-		$column->Rename = $this->in("New column name, empty skip:");
+		$column['Null'] = $value;
 
-		$column->Rename = $this->in("New column name, empty skip:");
-
-		$column->Rename = $this->in("New column name, empty skip:");
+		return $column;
 	}
 }

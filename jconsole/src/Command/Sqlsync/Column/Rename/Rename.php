@@ -51,7 +51,7 @@ class Rename extends JCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <cmd><new column name></cmd> <option>[option]</option>';
+	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <option>[new column name]</option> <option>[option]</option>';
 
 	protected $target = 'column name';
 
@@ -117,7 +117,7 @@ class Rename extends JCommand
 			$this->out()->out(sprintf('Current rename setting is: %s => %s', $column['Field'], $column['Rename']));
 		}
 
-		$value = $this->out()->in('Enter new name:');
+		$value = $value ?: $this->out()->in('Enter new name:');
 
 		if (!$value)
 		{

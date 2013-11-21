@@ -50,7 +50,7 @@ class Type extends Rename
 	 *
 	 * @var string
 	 */
-	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <cmd><new type></cmd> <option>[option]</option>';
+	protected $usage = 'rename <cmd><table name></cmd> <cmd><column name></cmd> <option>[new type]</option> <option>[option]</option>';
 
 	protected $target = 'type';
 
