@@ -5,7 +5,9 @@ namespace Sqlsync\Model;
 use Joomla\Registry\Registry;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
+use Sqlsync\Importer\AbstractImporter;
 use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Parser;
 
 class Schema extends \JModelDatabase
 {
@@ -62,6 +64,17 @@ class Schema extends \JModelDatabase
 	public function create($force = false, $type = 'yaml')
 	{
 		return $this->create($type);
+	}
+
+	public function import($force = false, $type = 'yaml')
+	{
+		$schema = file_get_contents($this->getPath($type));
+
+		$importer = AbstractImporter::getInstance($type);
+
+		$importer->import($schema);
+
+		exit('Schema::import');
 	}
 
 	public function load($type = 'yaml')

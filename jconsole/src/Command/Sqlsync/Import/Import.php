@@ -11,6 +11,7 @@ namespace Command\Sqlsync\Import;
 
 use JConsole\Command\JCommand;
 use Sqlsync\Model\Database;
+use Sqlsync\Model\Schema;
 
 defined('JPATH_CLI') or die;
 
@@ -59,7 +60,16 @@ class Import extends JCommand
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		$this->addOption(
+				array('f', 'force'),
+				0,
+				'Force import all, ignore compare.'
+			)
+			->addOption(
+				array('s', 'sql'),
+				0,
+				'Use sql format to export'
+			);
 	}
 
 	/**
@@ -69,6 +79,33 @@ class Import extends JCommand
 	 */
 	protected function doExecute()
 	{
+		$type = $this->getOption('s') ? 'sql' : 'yaml';
+
+		$model = new Schema;
+
+		$path = $model->getPath($type);
+
+		if (file_exists($path))
+		{
+			$yes = $this->out()->in('This action will compare and update your sql schema (y)es|(n)o?');
+
+			if ($yes != 'y' && $yes != 'yes')
+			{
+				$this->out('cancelled.');
+
+				return;
+			}
+		}
+		else
+		{
+			throw new \RuntimeException('Schema file not exitst.');
+		}
+
+		$force = $this->getOption('f');
+
+		$model->import($force, $type);
+
+		/*
 		$model = new Database;
 
 		$list = $model->getExported();
@@ -89,5 +126,6 @@ class Import extends JCommand
 		$this->out(sprintf("Import success. %s queries executed.", $queries));
 
 		return true;
+		*/
 	}
 }
