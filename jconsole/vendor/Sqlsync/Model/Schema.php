@@ -11,54 +11,35 @@ class Schema extends \JModelDatabase
 {
 	protected $versionModel;
 
-	public $initPath;
+	public $schemaPath;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$this->initPath = ProfileHelper::getPath() . '/schema/init.yml';
+		$this->schemaPath = ProfileHelper::getPath();
 	}
 
-	public function init()
+	public function export($type = 'yaml')
 	{
-		$content = $this->export(false, false);
+		$expoter = AbstractExporter::getInstance($type);
 
-		$this->saveInit($content);
+		/** @var $expoter AbstractExporter */
+		$content = $expoter->export(false, false);
 
-		return true;
+		$result = $this->save($this->getPath($type), $content);
+
+		$this->state->set('dump.count.tables', $expoter->getState()->get('dump.count.tables'));
+
+		$this->state->set('dump.count.rows', $expoter->getState()->get('dump.count.rows'));
+
+		return $result;
 	}
 
-	public function create($force = false)
+	public function save($path = null, $content = null)
 	{
-		$version = $this->getCurrentVersion();
+		$path = $path ?: $this->getPath('yaml');
 
-		$list = $this->listAllVersion();
-
-		/*
-		if (in_array($version, $list) && !$force)
-		{
-			throw new \RuntimeException('Now is newest version: ' . $version);
-		}
-		*/
-
-		$versionModel = $this->getVersionModel();
-
-		$versionModel->addNew();
-
-		$version = $this->getCurrentVersion();
-
-		$content = $this->export(false, false);
-
-		$this->saveVersion($version, $content);
-
-		$this->state->set('dump.version.new', $version);
-
-		return true;
-	}
-
-	public function save($path, $content)
-	{
 		if ($content instanceof Registry)
 		{
 			$content = $content->toArray();
@@ -78,121 +59,25 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
-	public function saveInit($content)
+	public function create($force = false, $type = 'yaml')
 	{
-		if (file_exists($this->initPath))
-		{
-			$msg = "Already initialised.\nFile in: " . $this->initPath;
-
-			throw new \RuntimeException($msg);
-		}
-
-		return $this->save($this->initPath, $content);
+		return $this->create($type);
 	}
 
-	public function saveVersion($version, $content)
+	public function load($type = 'yaml')
 	{
-		$version = $version ?: $this->getCurrentVersion();
-
-		$path = $this->getVersionPath($version);
-
-		return $this->save($path, $content);
-	}
-
-	public function hasInit()
-	{
-		$path    = $this->initPath;
-
-		if (file_exists($path))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	public function export($ignoreTrack = false, $onlyPrefix = false)
-	{
-		$expoter = AbstractExporter::getInstance('yaml');
-
-		/** @var $expoter AbstractExporter */
-		$result = $expoter->export($ignoreTrack, $onlyPrefix);
-
-		$this->state->set('dump.count.tables', $expoter->getState()->get('dump.count.tables'));
-
-		$this->state->set('dump.count.rows', $expoter->getState()->get('dump.count.rows'));
-
-		return $result;
-	}
-
-
-	public function getCurrentVersion()
-	{
-		$version = $this->getVersionModel();
-
-		return $version->getCurrent();
-	}
-
-	public function getPerviousVersion()
-	{
-		$version = $this->getVersionModel();
-
-		return $version->getPervious();
-	}
-
-	public function listAllVersion()
-	{
-		$version = $this->getVersionModel();
-
-		return $version->listAll();
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getVersionModel()
-	{
-		if ($this->versionModel)
-		{
-			return $this->versionModel;
-		}
-
-		return $this->versionModel = new Version;
-	}
-
-	public function getCurrent()
-	{
-		$version = $this->getCurrentVersion();
-
-		return $this->loadSchema($version);
-	}
-
-	public function loadSchema($version)
-	{
-		$path = $this->getVersionPath($version);
-
 		$schema = new Registry;
 
-		$schema->loadFile($path, 'yaml');
+		$schema->loadFile($this->getPath($type), $type);
 
 		return $schema;
 	}
 
-	public function getPath()
+	public function getPath($type = 'yaml')
 	{
-		return ProfileHelper::getPath() . '/schema';
-	}
+		$ext = ($type == 'yaml') ? 'yml' : $type;
 
-	public function getVersionPath($version = null)
-	{
-		return $this->getPath() . '/' . $version . '/schema.yml';
-	}
-
-	public function getCurrentPath()
-	{
-		$version = $this->getCurrentVersion();
-
-		return $this->getVersionPath($version);
+		return $this->schemaPath . '/schema.' . $ext;
 	}
 
 	public function objectToArray($d)

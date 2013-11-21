@@ -85,6 +85,9 @@ class YamlExporter extends AbstractExporter
 			}
 			*/
 
+			$column['From'] = array($column['Field']);
+
+			unset($column['Key']);
 			unset($column['Privileges']);
 			unset($column['Extra']);
 			unset($column['Collation']);
@@ -101,6 +104,8 @@ class YamlExporter extends AbstractExporter
 			unset($index['Index_type']);
 		}
 
+		$result['name'] = $table;
+		$result['from'] = array($table);
 		$result['columns'] = $columns;
 		$result['index'] = $indexes;
 		// $sql = preg_replace('#AUTO_INCREMENT=\S+#is', '', $result[1]);
