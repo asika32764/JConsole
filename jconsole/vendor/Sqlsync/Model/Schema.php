@@ -1,4 +1,7 @@
 <?php
+/**
+ * OK
+ */
 
 namespace Sqlsync\Model;
 
@@ -7,8 +10,12 @@ use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Importer\AbstractImporter;
 use Symfony\Component\Yaml\Dumper;
-use Symfony\Component\Yaml\Parser;
 
+/**
+ * Class Schema
+ *
+ * @package Sqlsync\Model
+ */
 class Schema extends \JModelDatabase
 {
 	protected $versionModel;
@@ -16,6 +23,7 @@ class Schema extends \JModelDatabase
 	public $schemaPath;
 
 	public $backupPath;
+
 
 	public function __construct()
 	{
@@ -26,6 +34,15 @@ class Schema extends \JModelDatabase
 		$this->backupPath = ProfileHelper::getTmpPath() . '/backups';
 	}
 
+	/**
+	 * Test
+	 *
+	 * @param  string $type         Test
+	 * @param  bool   $ignoreTrack  wer
+	 * @param  bool   $prefixOnly   erewr
+	 *
+	 * @return bool
+	 */
 	public function export($type = 'yaml', $ignoreTrack = false, $prefixOnly = false)
 	{
 		$expoter = AbstractExporter::getInstance($type);
