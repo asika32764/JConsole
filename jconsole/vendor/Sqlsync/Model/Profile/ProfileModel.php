@@ -64,7 +64,7 @@ class ProfileModel extends \JModelBase
 
 		$profileConfig = new Registry;
 
-		$file = SQLSYNC_RESOURCE . '/config.yml';
+		$file = JPATH_ROOT . '/tmp/sqlsync/config.yml';
 
 		$profileConfig->loadFile($file);
 

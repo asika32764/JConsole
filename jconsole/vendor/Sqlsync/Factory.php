@@ -39,7 +39,7 @@ abstract class Factory
 
 		$defaultConfig = __DIR__ . '/Resource/config.yml';
 
-		$userConfig = SQLSYNC_RESOURCE . '/config.yml';
+		$userConfig = JPATH_ROOT . '/tmp/sqlsync/config.yml';
 
 		if (!file_exists($userConfig))
 		{

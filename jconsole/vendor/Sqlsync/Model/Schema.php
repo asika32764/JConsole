@@ -23,7 +23,7 @@ class Schema extends \JModelDatabase
 
 		$this->schemaPath = ProfileHelper::getPath();
 
-		$this->backupPath = JPATH_ROOT . '/tmp/sqlsync/backup';
+		$this->backupPath = ProfileHelper::getTmpPath() . '/backups';
 	}
 
 	public function export($type = 'yaml', $ignoreTrack = false, $prefixOnly = false)

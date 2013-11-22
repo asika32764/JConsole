@@ -17,6 +17,13 @@ abstract class ProfileHelper
 	{
 		$profile = self::getProfile();
 
-		return SQLSYNC_RESOURCE . '/profiles/' . $profile;
+		return SQLSYNC_RESOURCE . '/' . $profile;
+	}
+
+	static public function getTmpPath()
+	{
+		$profile = self::getProfile();
+
+		return JPATH_ROOT . '/tmp/sqlsync/' . $profile;
 	}
 }
