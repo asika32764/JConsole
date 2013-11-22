@@ -23,7 +23,7 @@ class Schema extends \JModelDatabase
 
 		$this->schemaPath = ProfileHelper::getPath();
 
-		$this->backupPath = JPATH_ROOT . '/tmp/backup.sql';
+		$this->backupPath = JPATH_ROOT . '/tmp/sqlsync/backup';
 	}
 
 	public function export($type = 'yaml', $ignoreTrack = false, $prefixOnly = false)
@@ -67,28 +67,29 @@ class Schema extends \JModelDatabase
 
 	public function backup()
 	{
-		$expoter = AbstractExporter::getInstance('sql');
+		$database = new Database;
 
-		/** @var $expoter AbstractExporter */
-		$content = $expoter->export(true, false);
+		$result = $database->save('sql', $this->backupPath);
 
-		$result = $this->save($this->backupPath, $content);
-
-		$this->state->set('dump.path', $this->backupPath);
+		$this->state->set('dump.path', $database->getState()->get('dump.path'));
 
 		return $result;
 	}
 
 	public function restore()
 	{
-		if (!file_exists($this->backupPath))
+		$model = new Database;
+
+		$backups = \JFolder::files($this->backupPath, '.', false, true);
+
+		rsort($backups);
+
+		if (empty($backups[0]) || !file_exists($backups[0]))
 		{
 			throw new \RuntimeException('No backup file, please backup first.');
 		}
 
-		$model = new Database;
-
-		$content = file_get_contents($this->backupPath);
+		$content = file_get_contents($backups[0]);
 
 		$model->dropAllTables();
 

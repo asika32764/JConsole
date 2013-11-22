@@ -117,7 +117,7 @@ class Import extends JCommand
 		// Backup
 		$model->backup();
 
-		$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
+		$this->out()->out(sprintf('Schema file backup to: %s', $model->getState()->get('dump.path')));
 
 		$this->out()->out('Importing schema...');
 

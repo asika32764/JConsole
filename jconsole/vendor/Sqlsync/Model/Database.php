@@ -7,7 +7,7 @@ use Sqlsync\Helper\ProfileHelper;
 
 class Database extends \JModelDatabase
 {
-	public function save($type = 'sql')
+	public function save($type = 'sql', $folder = null)
 	{
 		$config   = \JFactory::getConfig();
 		$profile  = ProfileHelper::getProfile();
@@ -25,9 +25,11 @@ class Database extends \JModelDatabase
 			$file .= '.' . $type;
 		}
 
-		$file = ProfileHelper::getPath() . '/export/' . $type . '/' . $file;
+		$path = $folder ? $folder . '/' . $file : ProfileHelper::getPath() . '/export/' . $type . '/' . $file;
 
-		\JFile::write($file, $export);
+		\JFile::write($path, $export);
+
+		$this->state->set('dump.path', $path);
 
 		return true;
 	}
@@ -38,7 +40,7 @@ class Database extends \JModelDatabase
 		$exporter = AbstractExporter::getInstance($type);
 
 		// Export it.
-		return $exporter->export();
+		return $exporter->export(true, false);
 	}
 
 	public function getExported()
@@ -88,6 +90,16 @@ class Database extends \JModelDatabase
 		{
 			return;
 		}
+
+		$query = $this->db->getQuery(true);
+
+		array_map(
+			function($table) use($query)
+			{
+				return $query->qn($table);
+			}
+			,$tables
+		);
 
 		$this->db->setQuery('DROP TABLE IF EXISTS ' . implode(', ', $tables))->execute();
 

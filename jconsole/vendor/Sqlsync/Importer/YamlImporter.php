@@ -49,6 +49,10 @@ class YamlImporter extends AbstractImporter
 
 		$this->state->set('import.analyze', $this->analyze);
 
+		$sql = implode(";\n\n", $this->sql) . ';';
+
+		\JFile::write(JPATH_ROOT . '/tmp/sqlsync/last-import-schema.sql', $sql);
+
 		return true;
 	}
 
@@ -107,7 +111,14 @@ class YamlImporter extends AbstractImporter
 
 			$comment = $column['Comment'] ? ' COMMENT ' . $this->db->quote($column['Comment']) : '';
 
-			$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+			if ($column['Default'] == 'CURRENT_TIMESTAMP')
+			{
+				$default = ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
+			}
+			else
+			{
+				$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+			}
 
 			$addColumns[] = "{$this->db->quoteName($column['Field'])} {$column['Type']}{$null}{$default}{$ai}{$comment}";
 		}
@@ -172,7 +183,7 @@ class YamlImporter extends AbstractImporter
 
 		if ($oldName)
 		{
-			$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$oldName} {$newName} {$column['Type']}";
+			$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE `{$oldName}` `{$newName}` {$column['Type']}";
 
 			$this->execute($sql);
 
@@ -199,7 +210,7 @@ class YamlImporter extends AbstractImporter
 			$position = $before ? 'AFTER ' . $before : 'FIRST';
 
 			// Build sql
-			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$columnName} {$column['Type']} {$null} {$ai} {$comment} {$position}";
+			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD `{$columnName}` {$column['Type']} {$null} {$ai} {$comment} {$position}";
 
 			$this->execute($sql);
 
@@ -215,10 +226,8 @@ class YamlImporter extends AbstractImporter
 
 		unset($oldColumn['Collation']);
 		unset($oldColumn['Key']);
-		unset($oldColumn['Extra']);
 		unset($oldColumn['Privileges']);
 		unset($column['From']);
-
 
 		if ($oldColumn == $column)
 		{
@@ -231,10 +240,17 @@ class YamlImporter extends AbstractImporter
 
 		$comment = $column['Comment'] ? ' COMMENT ' . $this->db->quote($column['Comment']) : '';
 
-		$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+		if ($column['Default'] == 'CURRENT_TIMESTAMP')
+		{
+			$default = ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
+		}
+		else
+		{
+			$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+		}
 
 		// Build sql
-		$this->sql[] = $sql = "ALTER TABLE {$tableName} CHANGE {$columnName} {$columnName} {$column['Type']}{$null}{$default}{$ai}{$comment}";
+		$this->sql[] = $sql = "ALTER TABLE `{$tableName}` CHANGE `{$columnName}` `{$columnName}` {$column['Type']}{$null}{$default}{$ai}{$comment}";
 
 		$this->execute($sql);
 
@@ -306,13 +322,13 @@ class YamlImporter extends AbstractImporter
 
 		if ($index['Key_name'] == 'PRIMARY')
 		{
-			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD PRIMARY KEY (" . implode(', ', $columns) . ")";
+			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD PRIMARY KEY (" . implode(', ', $columns) . ")";
 		}
 		else
 		{
 			$indexType = $index['Non_unique'] ? 'INDEX' : 'UNIQUE';
 
-			$this->sql[] = $sql = "ALTER TABLE {$tableName} ADD {$indexType} `{$indexName}` (" . implode(', ', $columns) . ")";
+			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD `{$indexType}` `{$indexName}` (" . implode(', ', $columns) . ")";
 		}
 
 		$this->execute($sql);
@@ -382,7 +398,7 @@ class YamlImporter extends AbstractImporter
 		}
 
 		// Clean
-		$this->sql[] = $sql = "TRUNCATE TABLE {$tableName}";
+		$this->sql[] = $sql = "TRUNCATE TABLE `{$tableName}`";
 
 		$this->execute($sql);
 
