@@ -4,6 +4,7 @@
 JConsole is a cli tools extends from Joomla Console Package. It provides an interface to create nested commands.
 
 About Console package:
+
 Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Console
 
 ## Installation
@@ -239,6 +240,12 @@ public function onConsoleLoadCommand($context, $command)
 ```
 
 This reault will same as previous section.
+
+## Hot to use Command class
+
+Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Console
+
+And: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Console/Command
 
 ## Todo
 
