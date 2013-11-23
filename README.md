@@ -223,7 +223,7 @@ class Mycommand extends JCommand
 }
 ```
 
-Register command your plugin.
+Register command in your plugin.
 
 ``` php
 public function onConsoleLoadCommand($context, $command)
@@ -241,7 +241,7 @@ public function onConsoleLoadCommand($context, $command)
 }
 ```
 
-This reault will same as previous section.
+This result will be same as previous section.
 
 ## How to use Command class
 
