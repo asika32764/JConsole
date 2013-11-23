@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Model;
 
@@ -7,12 +14,24 @@ use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Helper\TableHelper;
 use Symfony\Component\Yaml\Parser as SymfontYamlParser;
 
+/**
+ * Class Track
+ */
 class Track extends \JModelDatabase
 {
+	/**
+	 * @var string
+	 */
 	protected $file;
 
+	/**
+	 * @var string
+	 */
 	protected $global;
 
+	/**
+	 * Constructor
+	 */
 	public function __construct()
 	{
 		$this->global = SQLSYNC_LIB . '/Resource/track.yml';
@@ -22,6 +41,11 @@ class Track extends \JModelDatabase
 		parent::__construct();
 	}
 
+	/**
+	 * getTrackList
+	 *
+	 * @return Registry
+	 */
 	public function getTrackList()
 	{
 		$track = new Registry;
@@ -39,6 +63,14 @@ class Track extends \JModelDatabase
 		return $track;
 	}
 
+	/**
+	 * setTrack
+	 *
+	 * @param        $tables
+	 * @param string $status
+	 *
+	 * @return void
+	 */
 	public function setTrack($tables, $status = 'all')
 	{
 		$db = \JFactory::getDbo();
@@ -59,6 +91,13 @@ class Track extends \JModelDatabase
 		$this->saveTrackList($track);
 	}
 
+	/**
+	 * saveTrackList
+	 *
+	 * @param $track
+	 *
+	 * @return void
+	 */
 	public function saveTrackList($track)
 	{
 		jimport('joomla.filesystem.file');
@@ -70,6 +109,13 @@ class Track extends \JModelDatabase
 		$this->state->set('track.save.path', $this->file);
 	}
 
+	/**
+	 * stripPrefix
+	 *
+	 * @param $table
+	 *
+	 * @return string
+	 */
 	protected function stripPrefix($table)
 	{
 		$db = \JFactory::getDbo();
@@ -83,4 +129,3 @@ class Track extends \JModelDatabase
 		return $table;
 	}
 }
-

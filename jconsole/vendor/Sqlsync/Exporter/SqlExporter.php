@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Exporter;
 
@@ -6,8 +13,19 @@ use Sqlsync\Helper\TableHelper;
 use Sqlsync\Model\Table;
 use Sqlsync\Model\Track;
 
+/**
+ * Class SqlExporter
+ */
 class SqlExporter extends AbstractExporter
 {
+	/**
+	 * export
+	 *
+	 * @param bool $ignoreTrack
+	 * @param bool $prefixOnly
+	 *
+	 * @return mixed|string
+	 */
 	public function export($ignoreTrack = false, $prefixOnly = false)
 	{
 		$tableObject = new Table;
@@ -51,6 +69,13 @@ class SqlExporter extends AbstractExporter
 		return implode(";\n\n", $sql) . ';';
 	}
 
+	/**
+	 * getCreateTable
+	 *
+	 * @param $table
+	 *
+	 * @return array|mixed|string
+	 */
 	protected function getCreateTable($table)
 	{
 		$db = $this->db;
@@ -70,6 +95,13 @@ class SqlExporter extends AbstractExporter
 		return $sql;
 	}
 
+	/**
+	 * getInserts
+	 *
+	 * @param $table
+	 *
+	 * @return mixed|null|string
+	 */
 	protected function getInserts($table)
 	{
 		$db      = $this->db;

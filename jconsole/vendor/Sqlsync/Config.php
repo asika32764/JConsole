@@ -1,10 +1,20 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync;
 
 use Joomla\Registry\Registry;
 use Sqlsync\Registry\Format\Json;
 
+/**
+ * Class Config
+ */
 class Config extends Registry
 {
 	/**

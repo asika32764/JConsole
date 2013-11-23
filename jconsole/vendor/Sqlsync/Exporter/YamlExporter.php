@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Exporter;
 
@@ -7,8 +14,20 @@ use Sqlsync\Model\Track;
 use Symfony\Component\Yaml\Dumper;
 use VerbalExpressions\PHPVerbalExpressions\VerbalExpressions;
 
+/**
+ * Class YamlExporter
+ */
 class YamlExporter extends AbstractExporter
 {
+	/**
+	 * export
+	 *
+	 * @param bool $ignoreTrack
+	 * @param bool $prefixOnly
+	 * @param bool $text
+	 *
+	 * @return mixed|string
+	 */
 	public function export($ignoreTrack = false, $prefixOnly = false, $text = true)
 	{
 		$tableObject = new Table;
@@ -55,6 +74,13 @@ class YamlExporter extends AbstractExporter
 		return $text ? $dumper->dump($result, 3, 0, false, true) : $result;
 	}
 
+	/**
+	 * getCreateTable
+	 *
+	 * @param $table
+	 *
+	 * @return mixed
+	 */
 	protected function getCreateTable($table)
 	{
 		$db = $this->db;
@@ -115,6 +141,13 @@ class YamlExporter extends AbstractExporter
 		return $result;
 	}
 
+	/**
+	 * getInserts
+	 *
+	 * @param $table
+	 *
+	 * @return mixed|null
+	 */
 	protected function getInserts($table)
 	{
 		$db      = $this->db;

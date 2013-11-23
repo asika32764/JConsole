@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Importer;
 
@@ -6,22 +13,53 @@ use Joomla\Utilities\ArrayHelper;
 use Sqlsync\Model\Table;
 use Symfony\Component\Yaml\Parser;
 
+/**
+ * Class YamlImporter
+ */
 class YamlImporter extends AbstractImporter
 {
+	/**
+	 * @var array
+	 */
 	public $sql = array();
 
+	/**
+	 * @var array
+	 */
 	protected $columns = array();
 
+	/**
+	 * @var array
+	 */
 	protected $indexes = array();
 
+	/**
+	 * @var array
+	 */
 	protected $dataPks = array();
 
+	/**
+	 * @var array
+	 */
 	protected $tables;
 
+	/**
+	 * @var bool
+	 */
 	protected $debug = false;
 
+	/**
+	 * @var array
+	 */
 	protected $analyze = array();
 
+	/**
+	 * import
+	 *
+	 * @param $content
+	 *
+	 * @return bool|mixed
+	 */
 	public function import($content)
 	{
 		$parser = new Parser;
@@ -56,6 +94,13 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * renameTable
+	 *
+	 * @param $table
+	 *
+	 * @return bool|mixed
+	 */
 	public function renameTable($table)
 	{
 		$from    = (array) ArrayHelper::getValue($table, 'from', array());
@@ -89,6 +134,13 @@ class YamlImporter extends AbstractImporter
 		return false;
 	}
 
+	/**
+	 * addTable
+	 *
+	 * @param $table
+	 *
+	 * @return mixed
+	 */
 	public function addTable($table)
 	{
 		$tableList = $this->getTableList();
@@ -132,6 +184,14 @@ class YamlImporter extends AbstractImporter
 		return $name;
 	}
 
+	/**
+	 * changeColumns
+	 *
+	 * @param $tableName
+	 * @param $columns
+	 *
+	 * @return bool
+	 */
 	public function changeColumns($tableName, $columns)
 	{
 		$before = '';
@@ -162,6 +222,15 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * renameColumn
+	 *
+	 * @param $tableName
+	 * @param $columnName
+	 * @param $column
+	 *
+	 * @return bool|mixed
+	 */
 	public function renameColumn($tableName, $columnName, $column)
 	{
 		$from    = (array) ArrayHelper::getValue($column, 'From', array());
@@ -195,6 +264,16 @@ class YamlImporter extends AbstractImporter
 		return false;
 	}
 
+	/**
+	 * addColumn
+	 *
+	 * @param $tableName
+	 * @param $columnName
+	 * @param $before
+	 * @param $column
+	 *
+	 * @return bool
+	 */
 	protected function addColumn($tableName, $columnName, $before, $column)
 	{
 		$oldColumns = array_keys($this->getColumnList($tableName));
@@ -220,6 +299,15 @@ class YamlImporter extends AbstractImporter
 		}
 	}
 
+	/**
+	 * changeColumn
+	 *
+	 * @param $tableName
+	 * @param $columnName
+	 * @param $column
+	 *
+	 * @return bool
+	 */
 	protected function changeColumn($tableName, $columnName, $column)
 	{
 		$oldColumn = $this->getOldColumn($tableName, $columnName);
@@ -261,6 +349,14 @@ class YamlImporter extends AbstractImporter
 		// print_r($oldColumn);print_r($column);die;
 	}
 
+	/**
+	 * dropColumns
+	 *
+	 * @param $tableName
+	 * @param $columns
+	 *
+	 * @return void
+	 */
 	protected function dropColumns($tableName, $columns)
 	{
 		$oldColumns = array_keys($this->getColumnList($tableName));
@@ -280,6 +376,14 @@ class YamlImporter extends AbstractImporter
 		}
 	}
 
+	/**
+	 * changeIndexes
+	 *
+	 * @param $tableName
+	 * @param $indexes
+	 *
+	 * @return bool
+	 */
 	protected function changeIndexes($tableName, $indexes)
 	{
 		$oldIndexes = $this->getOldIndexes($tableName);
@@ -303,6 +407,17 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * changeIndex
+	 *
+	 * @param      $tableName
+	 * @param      $indexName
+	 * @param      $columns
+	 * @param      $indexes
+	 * @param bool $noDrop
+	 *
+	 * @return bool
+	 */
 	protected function changeIndex($tableName, $indexName, $columns,  $indexes, $noDrop = true)
 	{
 		$index = null;
@@ -338,6 +453,15 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * dropIndexes
+	 *
+	 * @param $tableName
+	 * @param $oldIdxIdx
+	 * @param $newIdxIdx
+	 *
+	 * @return bool
+	 */
 	protected function dropIndexes($tableName, $oldIdxIdx, $newIdxIdx)
 	{
 		foreach ($oldIdxIdx as $oldIdx => $columns)
@@ -351,6 +475,14 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * dropIndex
+	 *
+	 * @param $tableName
+	 * @param $indexName
+	 *
+	 * @return bool
+	 */
 	protected function dropIndex($tableName, $indexName)
 	{
 		if ($indexName == 'PRIMARY')
@@ -369,6 +501,15 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * changeDatas
+	 *
+	 * @param $tableName
+	 * @param $datas
+	 * @param $columns
+	 *
+	 * @return bool
+	 */
 	protected function changeDatas($tableName, $datas, $columns)
 	{
 		if (!$datas)
@@ -410,6 +551,11 @@ class YamlImporter extends AbstractImporter
 		$this->analyze('Data', 'Inserted');
 	}
 
+	/**
+	 * getTableList
+	 *
+	 * @return array|mixed
+	 */
 	protected function getTableList()
 	{
 		if (!empty($this->tables))
@@ -424,6 +570,13 @@ class YamlImporter extends AbstractImporter
 		return $this->tables = $tables;
 	}
 
+	/**
+	 * getColumnList
+	 *
+	 * @param $table
+	 *
+	 * @return mixed
+	 */
 	protected function getColumnList($table)
 	{
 		if (!empty($this->columns[$table]))
@@ -436,6 +589,14 @@ class YamlImporter extends AbstractImporter
 		return $this->columns[$table] = $columns;
 	}
 
+	/**
+	 * getOldColumn
+	 *
+	 * @param $tableName
+	 * @param $columnName
+	 *
+	 * @return mixed
+	 */
 	protected function getOldColumn($tableName, $columnName)
 	{
 		$list = $this->getColumnList($tableName);
@@ -443,6 +604,13 @@ class YamlImporter extends AbstractImporter
 		return ArrayHelper::getValue($list, $columnName);
 	}
 
+	/**
+	 * getOldIndexes
+	 *
+	 * @param $table
+	 *
+	 * @return mixed
+	 */
 	protected function getOldIndexes($table)
 	{
 		if (!empty($this->indexes[$table]))
@@ -455,6 +623,13 @@ class YamlImporter extends AbstractImporter
 		return $this->indexes[$table] = $indexes;
 	}
 
+	/**
+	 * getIndexesIndex
+	 *
+	 * @param $indexes
+	 *
+	 * @return array
+	 */
 	protected function getIndexesIndex($indexes)
 	{
 		$indexesIndex = array();
@@ -474,6 +649,14 @@ class YamlImporter extends AbstractImporter
 		return $indexesIndex;
 	}
 
+	/**
+	 * analyze
+	 *
+	 * @param $schema
+	 * @param $action
+	 *
+	 * @return bool
+	 */
 	protected function analyze($schema, $action)
 	{
 		if (empty($this->analyze[$schema][$action]))
@@ -488,6 +671,13 @@ class YamlImporter extends AbstractImporter
 		return true;
 	}
 
+	/**
+	 * execute
+	 *
+	 * @param $sql
+	 *
+	 * @return bool|mixed
+	 */
 	protected function execute($sql)
 	{
 		return $this->debug ? false : $this->db->setQuery($sql)->execute();

@@ -1,6 +1,10 @@
 <?php
 /**
- * OK
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 namespace Sqlsync\Model;
@@ -13,18 +17,22 @@ use Symfony\Component\Yaml\Dumper;
 
 /**
  * Class Schema
- *
- * @package Sqlsync\Model
  */
 class Schema extends \JModelDatabase
 {
-	protected $versionModel;
-
+	/**
+	 * @var string
+	 */
 	public $schemaPath;
 
+	/**
+	 * @var string
+	 */
 	public $backupPath;
 
-
+	/**
+	 * Constructor
+ 	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -35,11 +43,11 @@ class Schema extends \JModelDatabase
 	}
 
 	/**
-	 * Test
+	 * export
 	 *
-	 * @param  string $type         Test
-	 * @param  bool   $ignoreTrack  wer
-	 * @param  bool   $prefixOnly   erewr
+	 * @param string $type
+	 * @param bool   $ignoreTrack
+	 * @param bool   $prefixOnly
 	 *
 	 * @return bool
 	 */
@@ -59,6 +67,15 @@ class Schema extends \JModelDatabase
 		return $result;
 	}
 
+	/**
+	 * save
+	 *
+	 * @param null $path
+	 * @param null $content
+	 *
+	 * @return bool
+	 * @throws \RuntimeException
+	 */
 	public function save($path = null, $content = null)
 	{
 		$path = $path ?: $this->getPath('yaml');
@@ -82,6 +99,11 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
+	/**
+	 * backup
+	 *
+	 * @return bool
+	 */
 	public function backup()
 	{
 		$database = new Database;
@@ -93,6 +115,12 @@ class Schema extends \JModelDatabase
 		return $result;
 	}
 
+	/**
+	 * restore
+	 *
+	 * @return bool
+	 * @throws \RuntimeException
+	 */
 	public function restore()
 	{
 		$model = new Database;
@@ -117,11 +145,27 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
+	/**
+	 * create
+	 *
+	 * @param bool   $force
+	 * @param string $type
+	 *
+	 * @return mixed
+	 */
 	public function create($force = false, $type = 'yaml')
 	{
 		return $this->create($type);
 	}
 
+	/**
+	 * import
+	 *
+	 * @param bool   $force
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
 	public function import($force = false, $type = 'yaml')
 	{
 		$schema = file_get_contents($this->getPath($type));
@@ -135,6 +179,13 @@ class Schema extends \JModelDatabase
 		return true;
 	}
 
+	/**
+	 * load
+	 *
+	 * @param string $type
+	 *
+	 * @return Registry
+	 */
 	public function load($type = 'yaml')
 	{
 		$schema = new Registry;
@@ -144,6 +195,13 @@ class Schema extends \JModelDatabase
 		return $schema;
 	}
 
+	/**
+	 * getPath
+	 *
+	 * @param string $type
+	 *
+	 * @return string
+	 */
 	public function getPath($type = 'yaml')
 	{
 		$ext = ($type == 'yaml') ? 'yml' : $type;
@@ -151,6 +209,13 @@ class Schema extends \JModelDatabase
 		return $this->schemaPath . '/schema.' . $ext;
 	}
 
+	/**
+	 * objectToArray
+	 *
+	 * @param $d
+	 *
+	 * @return array
+	 */
 	public function objectToArray($d)
 	{
 		if (is_object($d))

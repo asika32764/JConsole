@@ -1,11 +1,26 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Model\Profile;
 
 use Sqlsync\Factory;
 
+/**
+ * Class ProfilesModel
+ */
 class ProfilesModel extends \JModelBase
 {
+	/**
+	 * getItems
+	 *
+	 * @return array
+	 */
 	public function getItems()
 	{
 		$config = Factory::getConfig();
@@ -35,6 +50,11 @@ class ProfilesModel extends \JModelBase
 		return $items;
 	}
 
+	/**
+	 * getList
+	 *
+	 * @return array
+	 */
 	public function getList()
 	{
 		$profiles = new \FilesystemIterator(SQLSYNC_PROFILE, \FilesystemIterator::SKIP_DOTS);

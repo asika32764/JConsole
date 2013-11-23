@@ -1,12 +1,30 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Model\Profile;
 
 use Joomla\Registry\Registry;
 use Sqlsync\Factory;
 
+/**
+ * Class ProfileModel
+ */
 class ProfileModel extends \JModelBase
 {
+	/**
+	 * add
+	 *
+	 * @param $name
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function add($name)
 	{
 		$listModel = new ProfilesModel;
@@ -30,6 +48,14 @@ class ProfileModel extends \JModelBase
 		return true;
 	}
 
+	/**
+	 * remove
+	 *
+	 * @param $name
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function remove($name)
 	{
 		$listModel = new ProfilesModel;
@@ -51,6 +77,14 @@ class ProfileModel extends \JModelBase
 		return true;
 	}
 
+	/**
+	 * checkout
+	 *
+	 * @param $profile
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function checkout($profile)
 	{
 		$listModel = new ProfilesModel;

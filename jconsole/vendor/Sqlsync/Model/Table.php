@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     Joomla.Cli
+ * @subpackage  JConsole
+ *
+ * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 namespace Sqlsync\Model;
 
@@ -6,10 +13,19 @@ use Joomla\Registry\Registry;
 use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Helper\TableHelper;
 
+/**
+ * Class Table
+ */
 class Table extends \JModelDatabase
 {
+	/**
+	 * @var string
+	 */
 	public $prefix;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -17,16 +33,33 @@ class Table extends \JModelDatabase
 		$this->prefix = $this->db->getPrefix();
 	}
 
+	/**
+	 * listAll
+	 *
+	 * @return mixed
+	 */
 	public function listAll()
 	{
 		return $this->listTables();
 	}
 
+	/**
+	 * listSite
+	 *
+	 * @return mixed
+	 */
 	public function listSite()
 	{
 		return $this->listTables($this->prefix);
 	}
 
+	/**
+	 * listTables
+	 *
+	 * @param string $like
+	 *
+	 * @return mixed
+	 */
 	public function listTables($like = '')
 	{
 		$db = \JFactory::getDbo();
@@ -49,6 +82,11 @@ class Table extends \JModelDatabase
 		return $tables;
 	}
 
+	/**
+	 * status
+	 *
+	 * @return array
+	 */
 	public function status()
 	{
 		$trackObject = new Track;
@@ -75,6 +113,11 @@ class Table extends \JModelDatabase
 		return $statusList;
 	}
 
+	/**
+	 * sync
+	 *
+	 * @return bool
+	 */
 	public function sync()
 	{
 		$statusList = $this->status();
@@ -99,6 +142,13 @@ class Table extends \JModelDatabase
 		return true;
 	}
 
+	/**
+	 * stripPrefix
+	 *
+	 * @param $table
+	 *
+	 * @return string
+	 */
 	protected function stripPrefix($table)
 	{
 		return TableHelper::stripPrefix($table, $this->prefix);
