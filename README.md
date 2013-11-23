@@ -252,7 +252,9 @@ And: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Cons
 ## Todo
 
 1. SQL migration documentation.
-2. Cli Installer to install Joomla
+2. Site Installation
+3. Assets tools
+4. ACL fixer
 
 ## Contribution
 
