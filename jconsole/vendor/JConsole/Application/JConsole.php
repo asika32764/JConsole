@@ -63,6 +63,8 @@ class JConsole extends JoomlaConsole
 	 */
 	protected function loadFirstlevelCommands()
 	{
+		\JPluginHelper::importPlugin('console');
+
 		// Find commands in cli
 		$dirs = new \DirectoryIterator(JPATH_BASE . '/cli/jconsole/src/Command');
 
@@ -84,8 +86,6 @@ class JConsole extends JoomlaConsole
 		}
 
 		$context = get_class($this->defaultCommand);
-
-		\JPluginHelper::importPlugin('console');
 
 		$this->triggerEvent('onConsoleLoadCommand', array($context, $this->defaultCommand));
 	}

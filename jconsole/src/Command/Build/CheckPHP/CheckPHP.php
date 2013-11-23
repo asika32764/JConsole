@@ -37,6 +37,8 @@ class CheckPHP extends JCommand
 			'/cli/jconsole/',
 			'Dump to file, the log file will save in {ROOT}/logs.'
 		);
+
+		parent::configure();
 	}
 
 	public function doExecute()

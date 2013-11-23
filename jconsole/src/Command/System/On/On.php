@@ -29,6 +29,7 @@ class On extends JCommand
 
 	public function configure()
 	{
+		parent::configure();
 	}
 
 	protected function doExecute()

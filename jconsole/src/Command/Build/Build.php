@@ -17,9 +17,8 @@ class Build extends JCommand
 
 	protected $description = 'Some useful tools for building system.';
 
-	//        public $usage = 'example <command> [option]';
-
 	public function configure()
 	{
+		parent::configure();
 	}
 }

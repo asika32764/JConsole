@@ -16,10 +16,4 @@ class System extends JCommand
 	protected $name = 'system';
 
 	protected $description = 'System control.';
-
-	//        public $usage = 'example <command> [option]';
-
-	public function configure()
-	{
-	}
 }

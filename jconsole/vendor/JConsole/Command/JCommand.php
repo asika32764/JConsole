@@ -70,6 +70,6 @@ abstract class JCommand extends Command
 	{
 		$context = get_class($this);
 
-		$this->getApplication()->triggerEvent('onConsoleLoadCommand', array($context, $this));
+		\JFactory::getApplication()->triggerEvent('onConsoleLoadCommand', array($context, $this));
 	}
 }

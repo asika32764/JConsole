@@ -118,6 +118,8 @@ class {{CLASS}} extends JCommand
 	public function configure()
 	{
 		// \$this->addArgument();
+
+		parent::configure();
 	}
 
 	/**
@@ -140,7 +142,7 @@ TMPL;
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		parent::configure();
 	}
 
 	/**

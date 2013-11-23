@@ -21,6 +21,7 @@ class Indexmaker extends JCommand
 
 	public function configure()
 	{
+		parent::configure();
 	}
 
 	public function doExecute()
