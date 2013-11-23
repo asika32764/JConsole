@@ -10,7 +10,7 @@ class Sqlsync extends JCommand
 {
 	public $name = 'sql';
 
-	public $description = 'Example description.';
+	public $description = 'SQL migration tools.';
 
 	public static $isEnabled = true;
 

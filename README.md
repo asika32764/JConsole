@@ -75,7 +75,7 @@ Welcome to Joomla! Console.
       gen-command        Generate a command class.
       index              Create empty index.html files in directories.
 
-  sql                    Example description.
+  sql                    SQL migration tools.
       backup             Backup sql.
       col                Column operation
       export             Export sql.
@@ -175,7 +175,7 @@ $ php console system mycommand
 Hello World
 ```
 
-## Use custom Command
+## Use custom Command class
 
 We can put our commands in plugin folder:
 
