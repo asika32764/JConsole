@@ -243,7 +243,7 @@ public function onConsoleLoadCommand($context, $command)
 
 This reault will same as previous section.
 
-## Hot to use Command class
+## How to use Command class
 
 Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Console
 
