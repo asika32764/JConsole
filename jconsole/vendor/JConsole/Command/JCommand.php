@@ -58,4 +58,18 @@ abstract class JCommand extends Command
 			}
 		}
 	}
+
+	/**
+	 * Configure command.
+	 *
+	 * @return void
+	 *
+	 * @since  1.0
+	 */
+	protected function configure()
+	{
+		$context = get_class($this);
+
+		$this->getApplication()->triggerEvent('onConsoleLoadCommand', array($context, $this));
+	}
 }

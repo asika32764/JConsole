@@ -5,6 +5,9 @@ namespace JConsole\Descriptor;
 use Joomla\Console\Descriptor\Text\TextOptionDescriptor;
 use Joomla\Console\Option\Option;
 
+/**
+ * Class JOption Descriptor
+ */
 class JOptionDescriptor extends TextOptionDescriptor
 {
 	/**
