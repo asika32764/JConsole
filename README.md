@@ -1,7 +1,7 @@
 # JConsole
 #### An useful console tools for Joomla CMS
 
-JConsole is a cli tools extends from Joomla Console Package. It provides an interface to cteate nested commands.
+JConsole is a cli tools extends from Joomla Console Package. It provides an interface to create nested commands.
 
 Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joomla/Console
 
