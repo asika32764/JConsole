@@ -4,31 +4,7 @@ namespace Sqlsync;
 
 abstract class Factory
 {
-	static public $version = array();
-
-	static public $schema;
-
 	static public $config;
-
-	public static function getVersion($profile = null, $db = null)
-	{
-		if (isset(self::$version[$profile]))
-		{
-			return self::$version[$profile];
-		}
-
-		return self::$version[$profile] = new Version($profile, $db);
-	}
-
-	public static function getSchema($db = null)
-	{
-		if (self::$schema)
-		{
-			return self::$schema;
-		}
-
-		return self::$schema = new Schema($db);
-	}
 
 	public static function getConfig()
 	{
@@ -43,7 +19,9 @@ abstract class Factory
 
 		if (!file_exists($userConfig))
 		{
-			file_put_contents($userConfig, '');
+			$content = '';
+
+			\JFile::write($userConfig, $content);
 		}
 
 		$config = new Config;

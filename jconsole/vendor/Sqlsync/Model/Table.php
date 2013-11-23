@@ -2,6 +2,8 @@
 
 namespace Sqlsync\Model;
 
+use Joomla\Registry\Registry;
+use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Helper\TableHelper;
 
 class Table extends \JModelDatabase
@@ -71,6 +73,30 @@ class Table extends \JModelDatabase
 		}
 
 		return $statusList;
+	}
+
+	public function sync()
+	{
+		$statusList = $this->status();
+
+		$path = ProfileHelper::getPath() . '/track.yml';
+
+		$trackList = array();
+
+		foreach ($statusList as $status)
+		{
+			$trackList['table'][$status['table']] = $status['status'];
+		}
+
+		$track = new Registry($trackList);
+
+		$trackModel = new Track;
+
+		$trackModel->saveTrackList($track);
+
+		$this->state->set('track.save.path', $trackModel->getState()->get('track.save.path'));
+
+		return true;
 	}
 
 	protected function stripPrefix($table)

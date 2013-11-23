@@ -7,7 +7,7 @@ use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Helper\TableHelper;
 use Symfony\Component\Yaml\Parser as SymfontYamlParser;
 
-class Track extends \JModelBase
+class Track extends \JModelDatabase
 {
 	protected $file;
 
@@ -18,6 +18,8 @@ class Track extends \JModelBase
 		$this->global = SQLSYNC_LIB . '/Resource/track.yml';
 
 		$this->file = ProfileHelper::getPath() . '/track.yml';
+
+		parent::__construct();
 	}
 
 	public function getTrackList()
@@ -64,6 +66,8 @@ class Track extends \JModelBase
 		$content = $track->toString('yaml');
 
 		\JFile::write($this->file, $content);
+
+		$this->state->set('track.save.path', $this->file);
 	}
 
 	protected function stripPrefix($table)
