@@ -27,7 +27,7 @@ class Sqlsync extends JCommand
 
 		define('SQLSYNC_RESOURCE', JPATH_CLI . '/jconsole/resource/sqlsync');
 
-		define('SQLSYNC_PROFILE',  SQLSYNC_RESOURCE . '/profiles');
+		define('SQLSYNC_PROFILE',  SQLSYNC_RESOURCE);
 
 		define('SQLSYNC_LIB',      JPATH_CLI . '/jconsole/vendor/Sqlsync');
 

@@ -67,4 +67,3 @@ table:
     '#__users': all
     '#__viewlevels': all
     '#__weblinks': all
-    'sqlsync': all
