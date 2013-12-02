@@ -146,6 +146,8 @@ class YamlImporter extends AbstractImporter
 		$tableList = $this->getTableList();
 		$name = ArrayHelper::getValue($table, 'name', array());
 
+        $indexes = ArrayHelper::getValue($table, 'index', array());
+        
 		if (in_array($name, $tableList))
 		{
 			return $name;
@@ -174,6 +176,22 @@ class YamlImporter extends AbstractImporter
 
 			$addColumns[] = "{$this->db->quoteName($column['Field'])} {$column['Type']}{$null}{$default}{$ai}{$comment}";
 		}
+        
+        // Add Primary Key
+        $primaryColumns = array();
+        
+        foreach ($indexes as $index)
+        {
+            if (ArrayHelper::getValue($index, 'Key_name') == 'PRIMARY')
+            {
+                $primaryColumns[] = $this->db->qn(ArrayHelper::getValue($index, 'Column_name'));
+            }
+        }
+        
+        if ($primaryColumns)
+        {
+            $addColumns[] = "PRIMARY KEY (" . implode(', ', $primaryColumns) . ")";
+        }
 
 		$this->sql[] = $sql = "CREATE TABLE IF NOT EXISTS `{$name}` (\n  " . implode(",\n  ", $addColumns) . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
@@ -442,8 +460,18 @@ class YamlImporter extends AbstractImporter
 		else
 		{
 			$indexType = $index['Non_unique'] ? 'INDEX' : 'UNIQUE';
+            
+            $db = $this->db;
+            
+            $columns = array_map(
+                function($v) use($db)
+                {
+                    return $db->qn($v);
+                },
+                $columns
+            );
 
-			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD `{$indexType}` `{$indexName}` (" . implode(', ', $columns) . ")";
+			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD {$indexType} `{$indexName}` (" . implode(', ', $columns) . ")";
 		}
 
 		$this->execute($sql);
