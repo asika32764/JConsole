@@ -11,6 +11,7 @@ namespace Sqlsync\Exporter;
 
 use Sqlsync\Model\Table;
 use Sqlsync\Model\Track;
+use Sqlsync\Helper\TableHelper;
 use Symfony\Component\Yaml\Dumper;
 use VerbalExpressions\PHPVerbalExpressions\VerbalExpressions;
 
@@ -130,6 +131,8 @@ class YamlExporter extends AbstractExporter
 			unset($index['Sub_part']);
 			unset($index['Packed']);
 			unset($index['Index_type']);
+            
+            $index['Table'] = TableHelper::stripPrefix($index['Table']);
 		}
 
 		$result['name'] = $table;
