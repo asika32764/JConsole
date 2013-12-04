@@ -131,8 +131,8 @@ class YamlExporter extends AbstractExporter
 			unset($index['Sub_part']);
 			unset($index['Packed']);
 			unset($index['Index_type']);
-            
-            $index['Table'] = TableHelper::stripPrefix($index['Table']);
+
+			$index['Table'] = TableHelper::stripPrefix($index['Table']);
 		}
 
 		$result['name'] = $table;
