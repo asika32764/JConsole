@@ -1,20 +1,5 @@
 # IDE & System Related Files #
-.buildpath
-.project
-.settings
-.DS_Store
-.idea
+.*
 
-# Local System Files (i.e. cache, logs, etc.) #
-
-# JConsole Files #
-/*
-!jconsole/
-!.gitignore
-!console
-!README.md
-
-jconsole/resource
-
-# PHPUnit #
-phpunit.xml
+# Composer #
+/vendor/*
