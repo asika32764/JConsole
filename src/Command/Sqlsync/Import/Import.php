@@ -11,6 +11,8 @@ namespace Command\Sqlsync\Import;
 
 use JConsole\Command\JCommand;
 use Joomla\Console\Prompter\BooleanPrompter;
+use Sqlsync\Factory;
+use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Model\Database;
 use Sqlsync\Model\Schema;
 
@@ -98,7 +100,7 @@ class Import extends JCommand
 				return;
 			}
 		}
-		else
+		elseif (!file_exists($path))
 		{
 			throw new \RuntimeException('Schema file not exists.');
 		}
@@ -112,28 +114,40 @@ class Import extends JCommand
 
 		$state = $model->getState();
 
-		$this->out()->out('Backing up...');
+		$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
 
-		// Backup
-		$model->backup();
+		$config = Factory::getConfig();
 
-		$this->out()->out(sprintf('Schema file backup to: %s', $model->getState()->get('dump.path')));
-
-		$this->out()->out('Importing schema...');
-
-		// Import
-		$model->import($force, $type);
-
-		// Report
-		$analyze = $state->get('import.analyze');
-
-		foreach ($analyze as $table => $schema)
+		foreach ($profiles as $profile)
 		{
-			$this->out()->out($table . ':');
+			$config->set('profile', $profile);
 
-			foreach ($schema as $action => $count)
+			// Backup
+			$this->out()->out(sprintf('<comment>Backing up</comment> profile <info>%s</info> ...', $profile));
+
+			$model->backup();
+
+			$this->out()->out(sprintf('Schema file backup to: %s', $model->getState()->get('dump.path')));
+
+			// Import
+
+			$this->out()->out(sprintf('<option>Importing</option> profile schema: <info>%s</info> ...', $profile));
+
+			$model->import($force, $type);
+
+			$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
+
+			// Report
+			$analyze = $state->get('import.analyze');
+
+			foreach ($analyze as $table => $schema)
 			{
-				$this->out('    ' . $action . ': ' . $count);
+				$this->out()->out($table . ':');
+
+				foreach ($schema as $action => $count)
+				{
+					$this->out('    ' . $action . ': ' . $count);
+				}
 			}
 		}
 

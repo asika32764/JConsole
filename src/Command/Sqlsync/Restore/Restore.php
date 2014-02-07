@@ -75,7 +75,7 @@ class Restore extends JCommand
 
 		$path = $model->backupPath;
 
-		if (!$this->getOption('y'))
+		if (file_exists($path) && !$this->getOption('y'))
 		{
 			$prompter = new BooleanPrompter('Are you sure you want to restore? [Y/n]: ');
 

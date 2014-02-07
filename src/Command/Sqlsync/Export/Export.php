@@ -12,6 +12,8 @@ namespace Command\Sqlsync\Export;
 
 use JConsole\Command\JCommand;
 use Joomla\Console\Prompter\BooleanPrompter;
+use Sqlsync\Factory;
+use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Model\Schema;
 
 defined('JCONSOLE') or die;
@@ -79,23 +81,38 @@ class Export extends JCommand
 
 		$model = new Schema;
 
-		$path = $model->getPath($type);
+		$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
 
-		if (file_exists($path) && !$this->getOption('y'))
+		$config = Factory::getConfig();
+
+		foreach ($profiles as $profile)
 		{
-			$prompter = new BooleanPrompter('Schema file exists, do you want to override it? [Y/n]: ');
+			$config->set('profile', $profile);
 
-			if (!$prompter->ask())
+			// Check schema.
+			$path = $model->getPath($type);
+
+			if (file_exists($path) && !$this->getOption('y'))
 			{
-				$this->out('cancelled.');
+				$prompter = new BooleanPrompter(
+					sprintf('Schema file <info>%s</info> exists, do you want to override it? [Y/n]: ', $profile)
+				);
 
-				return;
+				if (!$prompter->ask())
+				{
+					$this->out('cancelled.');
+
+					return;
+				}
 			}
+
+			// Exporting
+			$this->out()->out('<comment>Exporting</comment> profile schema: <info>' . $profile . '</info>');
+
+			$model->export($type);
+
+			$this->out()->out(sprintf('Schema file dumped to: <info>%s</info>', $model->getState()->get('dump.path')));
 		}
-
-		$model->export($type);
-
-		$this->out()->out(sprintf('Schema file dumped to: %s', $model->getState()->get('dump.path')));
 
 		/*
 		$yaml = $this->getOption('yaml');
