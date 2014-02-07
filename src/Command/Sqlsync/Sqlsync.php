@@ -25,11 +25,11 @@ class Sqlsync extends JCommand
 	{
 		define('SQLSYNC_COMMAND',  __DIR__);
 
-		define('SQLSYNC_RESOURCE', JCONSOLE . '/jconsole/resource/sqlsync');
+		define('SQLSYNC_RESOURCE', JCONSOLE_SOURCE . '/resource/sqlsync');
 
 		define('SQLSYNC_PROFILE',  SQLSYNC_RESOURCE);
 
-		define('SQLSYNC_LIB',      JCONSOLE . '/jconsole/vendor/Sqlsync');
+		define('SQLSYNC_LIB',      JCONSOLE . '/src/Sqlsync');
 
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.folder');

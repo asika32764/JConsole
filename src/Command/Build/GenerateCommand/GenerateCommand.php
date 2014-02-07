@@ -117,7 +117,7 @@ class {{CLASS}} extends JCommand
 	 */
 	public function configure()
 	{
-		// \$this->addArgument();
+		// \$this->addCommand();
 
 		parent::configure();
 	}
@@ -148,7 +148,7 @@ TMPL;
 	/**
 	 * Execute this command.
 	 *
-	 * @return int|void
+	 * @return mixed
 	 */
 	protected function doExecute()
 	{
@@ -189,15 +189,15 @@ TMPL;
 		$namespace = implode('\\', $namespace);
 
 		$replace = array(
-			'{{NAME}}'      => $name,
-			'{{NAMESPACE}}' => $namespace,
-			'{{CLASS}}'     => $class,
+			'{{NAME}}'        => $name,
+			'{{NAMESPACE}}'   => $namespace,
+			'{{CLASS}}'       => $class,
 			'{{DESCRIPTION}}' => $description
 		);
 
 		$content = strtr($this->template, $replace);
 
-		$file = JCONSOLE . '/jconsole/src/Command/' . $namespace . '/' . $class . '.php';
+		$file = JCONSOLE_SOURCE . '/src/Command/' . $namespace . '/' . $class . '.php';
 
 		$file = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file);
 

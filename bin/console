@@ -36,12 +36,17 @@ require_once JPATH_BASE . '/includes/framework.php';
 require_once JPATH_LIBRARIES . '/cms.php';
 
 restore_exception_handler();
+restore_error_handler();
 
 // Load Console libraries
 include_once JCONSOLE . '/vendor/autoload.php';
 
 // Import the configuration.
 require_once JPATH_CONFIGURATION . '/configuration.php';
+
+// Set error handler
+set_error_handler(array('\\JConsole\\Error\\ErrorHandler', 'handleError'));
+set_exception_handler(array('\\JConsole\\Error\\ErrorHandler', 'handleException'));
 
 // System configuration.
 $config = new JConfig;

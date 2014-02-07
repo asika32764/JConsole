@@ -74,7 +74,12 @@ class JConsole extends JoomlaConsole
 
 		// Find commands in cli
 		$dirs = new \AppendIterator;
-		$dirs->append(new \DirectoryIterator(JPATH_BASE . '/cli/jconsole/src/Command'));
+
+		if (is_dir(JCONSOLE_SOURCE . '/src/Command'))
+		{
+			$dirs->append(new \DirectoryIterator(JCONSOLE_SOURCE . '/src/Command'));
+		}
+
 		$dirs->append(new \DirectoryIterator(JCONSOLE . '/src/Command'));
 
 		foreach ($dirs as $dir)

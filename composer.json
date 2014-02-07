@@ -16,7 +16,8 @@
 	"autoload" : {
 		"psr-0" : {
 			"JConsole" : "src/",
-			"Command" : "src/",
+			"Command"  : "src/",
+			"Sqlsync"  : "src/",
 			"" : "../../cli/jconsole/src/"
 		}
 	}
