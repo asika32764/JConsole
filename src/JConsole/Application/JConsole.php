@@ -143,4 +143,43 @@ class JConsole extends JoomlaConsole
 
 		return null;
 	}
+
+	/**
+	 * Enqueue a system message.
+	 *
+	 * @param   string  $msg   The message to enqueue.
+	 * @param   string  $type  The message type. Default is message.
+	 *
+	 * @return  void
+	 *
+	 * @since   3.2
+	 */
+	public function enqueueMessage($msg, $type = 'message')
+	{
+		$this->out($msg);
+	}
+
+	/**
+	 * Is admin interface?
+	 *
+	 * @return  boolean  True if this application is administrator.
+	 *
+	 * @since   3.2
+	 */
+	public function isAdmin()
+	{
+		return false;
+	}
+
+	/**
+	 * Is site interface?
+	 *
+	 * @return  boolean  True if this application is site.
+	 *
+	 * @since   3.2
+	 */
+	public function isSite()
+	{
+		return true;
+	}
 }
