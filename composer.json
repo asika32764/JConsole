@@ -1,5 +1,5 @@
 {
-	"name"             : "aiksa/jconsole",
+	"name"             : "asika/jconsole",
 	"description"      : "Useful Cli tools for Joomla CMS",
 	"minimum-stability": "beta",
 	"authors"          : [
@@ -26,5 +26,11 @@
 			"JConsole\\Installer\\ComposerInstaller::install"
 		],
 		"post-update-cmd": []
+	},
+	"bin": [
+		"bin/console.php"
+	],
+	"config": {
+		"bin-dir": "../../bin"
 	}
 }
