@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Profile\Remove;
 
 use JConsole\Command\JCommand;
+use Joomla\Console\Prompter\BooleanPrompter;
 use Sqlsync\Model\Profile\ProfileModel;
 
 defined('JCONSOLE') or die;
@@ -65,6 +66,7 @@ class Remove extends JCommand
 	/**
 	 * Execute this command.
 	 *
+	 * @throws \Exception
 	 * @return int|void
 	 */
 	protected function doExecute()
@@ -76,11 +78,14 @@ class Remove extends JCommand
 			throw new \Exception('Please enter a profile name.');
 		}
 
-		$check = $this->out()->in('Do you really want to remove "' . $name . '" profile? (y)es|(n)o: ');
-
-		if (!($check == 'y' || $check == 'yes'))
+		if (!$this->getOption('y'))
 		{
-			return;
+			$prompter = new BooleanPrompter('Do you really want to remove "' . $name . '" profile? [Y/n]: ');
+
+			if (!$prompter->ask())
+			{
+				return false;
+			}
 		}
 
 		$model = new ProfileModel;

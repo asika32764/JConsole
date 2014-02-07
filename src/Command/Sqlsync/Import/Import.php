@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Import;
 
 use JConsole\Command\JCommand;
+use Joomla\Console\Prompter\BooleanPrompter;
 use Sqlsync\Model\Database;
 use Sqlsync\Model\Schema;
 
@@ -75,6 +76,7 @@ class Import extends JCommand
 	/**
 	 * Execute this command.
 	 *
+	 * @throws \RuntimeException
 	 * @return int|void
 	 */
 	protected function doExecute()
@@ -85,13 +87,11 @@ class Import extends JCommand
 
 		$path = $model->getPath($type);
 
-		if (file_exists($path))
+		if (file_exists($path) && !$this->getOption('y'))
 		{
-			$yes = $this->out()->in('This action will compare and update your sql schema (y)es or (n)o: ');
+			$prompter = new BooleanPrompter('This action will compare and update your sql schema [Y/n]: ');
 
-			$yes = strtolower($yes);
-
-			if ($yes != 'y' && $yes != 'yes')
+			if (!$prompter->ask())
 			{
 				$this->out('cancelled.');
 

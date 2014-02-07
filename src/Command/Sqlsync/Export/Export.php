@@ -11,6 +11,7 @@ namespace Command\Sqlsync\Export;
 
 
 use JConsole\Command\JCommand;
+use Joomla\Console\Prompter\BooleanPrompter;
 use Sqlsync\Model\Schema;
 
 defined('JCONSOLE') or die;
@@ -80,11 +81,11 @@ class Export extends JCommand
 
 		$path = $model->getPath($type);
 
-		if (file_exists($path))
+		if (file_exists($path) && !$this->getOption('y'))
 		{
-			$yes = $this->out()->in('Schema file exists, do you want to override it (y)es|(n)o?');
+			$prompter = new BooleanPrompter('Schema file exists, do you want to override it? [Y/n]: ');
 
-			if ($yes != 'y' && $yes != 'yes')
+			if (!$prompter->ask())
 			{
 				$this->out('cancelled.');
 

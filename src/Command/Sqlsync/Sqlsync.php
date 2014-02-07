@@ -3,6 +3,7 @@
 namespace Command\Sqlsync;
 
 use JConsole\Command\JCommand;
+use Joomla\Console\Option\Option;
 use Sqlsync\Schema;
 use Symfony\Component\Yaml\Dumper as SymfonyYamlDumper;
 
@@ -16,11 +17,28 @@ class Sqlsync extends JCommand
 
 	//        public $usage = 'example <command> [option]';
 
+	/**
+	 * configure
+	 *
+	 * @return  void
+	 */
 	public function configure()
 	{
 		parent::configure();
+
+		$this->addOption(
+			array('y', 'assume-yes'),
+			0,
+			'Ignore confirm prompter.',
+			Option::IS_GLOBAL
+		);
 	}
 
+	/**
+	 * execute
+	 *
+	 * @return  mixed
+	 */
 	public function execute()
 	{
 		define('SQLSYNC_COMMAND',  __DIR__);

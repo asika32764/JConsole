@@ -10,6 +10,7 @@
 namespace Command\Sqlsync\Restore;
 
 use JConsole\Command\JCommand;
+use Joomla\Console\Prompter\BooleanPrompter;
 use Sqlsync\Model\Schema;
 
 defined('JCONSOLE') or die;
@@ -65,6 +66,7 @@ class Restore extends JCommand
 	/**
 	 * Execute this command.
 	 *
+	 * @throws \RuntimeException
 	 * @return int|void
 	 */
 	protected function doExecute()
@@ -73,20 +75,19 @@ class Restore extends JCommand
 
 		$path = $model->backupPath;
 
-		if (file_exists($path))
+		if (!$this->getOption('y'))
 		{
-			$yes = $this->out()->in('Are you sure you want to restore? (y)es or (n)o: ');
+			$prompter = new BooleanPrompter('Are you sure you want to restore? [Y/n]: ');
 
-			$yes = strtolower($yes);
-
-			if ($yes != 'y' && $yes != 'yes')
+			if (!$prompter->ask())
 			{
 				$this->out('cancelled.');
 
 				return;
 			}
 		}
-		else
+
+		if (!file_exists($path))
 		{
 			throw new \RuntimeException('Backup file not exists.');
 		}
