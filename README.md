@@ -9,21 +9,11 @@ Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joom
 
 > Note: Console package has not added to Joomla Framework yet, it is an experimental package.
 
-## Installation
-
-### Git
+## Installation via Composer
 
 ``` bash
-$ cd /your/path/to/joomla/cli
-$ git init
-$ git remote add origin https://github.com/asika32764/JConsole
-$ git pull origin master
+php composer.phar create-project asika/jconsole libraries/jconsole dev-master -s dev
 ```
-
-### Download
-
-1. Download this package: https://github.com/asika32764/JConsole/archive/master.zip
-2. Uncompress and copy `console` file and `jconsole` folder to your Joomla cli folder.
 
 ## Getting started
 
