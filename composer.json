@@ -20,5 +20,11 @@
 			"Sqlsync"  : "src/",
 			"" : "../../cli/jconsole/src/"
 		}
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"JConsole\\Installer\\ComposerInstaller::install"
+		],
+		"post-update-cmd": []
 	}
 }
