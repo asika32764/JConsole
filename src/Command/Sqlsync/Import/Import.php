@@ -63,7 +63,8 @@ class Import extends JCommand
 	 */
 	public function configure()
 	{
-		$this->addOption(
+		$this
+			->addOption(
 				array('f', 'force'),
 				0,
 				'Force import all, ignore compare.'
@@ -72,6 +73,10 @@ class Import extends JCommand
 				array('s', 'sql'),
 				0,
 				'Use sql format to export'
+			)->addOption(
+				array('a', 'all'),
+				0,
+				'All profiles'
 			);
 	}
 
@@ -114,7 +119,14 @@ class Import extends JCommand
 
 		$state = $model->getState();
 
-		$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
+		if ($this->getOption('a'))
+		{
+			$profiles = ProfileHelper::getAllProfiles();
+		}
+		else
+		{
+			$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
+		}
 
 		$config = Factory::getConfig();
 

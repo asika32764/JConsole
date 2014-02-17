@@ -66,7 +66,7 @@ class SqlExporter extends AbstractExporter
 		$this->state->set('dump.count.tables', $this->tableCount);
 		$this->state->set('dump.count.rows', $this->rowCount);
 
-		return implode(";\n\n", $sql) . ';';
+		return implode(";\n\n", $sql);
 	}
 
 	/**
@@ -106,7 +106,6 @@ class SqlExporter extends AbstractExporter
 	{
 		$db      = $this->db;
 		$query   = $db->getQuery(true);
-		$columns = $db->setQuery($this->queryHelper->showColumns($table))->loadColumn();
 		$datas   = $db->setQuery($this->queryHelper->getAllData($table))->getIterator('ArrayObject');
 
 		if (!count($datas))
@@ -114,20 +113,8 @@ class SqlExporter extends AbstractExporter
 			return null;
 		}
 
-		$columns = array_map(
-			function($t) use ($query)
-			{
-				return $query->qn($t);
-			},
-			$columns
-		);
-
-		/** @var $query \JDatabaseQueryMysqli */
-		$query->insert($query->quoteName($query->escape($table)));
-
-		$columns = ' (' . implode(', ', $columns) . ')';
-
 		$values = array();
+		$sql    = array();
 
 		foreach ($datas as $data)
 		{
@@ -141,13 +128,13 @@ class SqlExporter extends AbstractExporter
 				$data
 			);
 
-			$values[] = implode(', ', $data);
+			$value = implode(', ', $data);
 
 			$this->rowCount++;
+
+			$sql[] = (string) sprintf("INSERT `%s` VALUES (%s)", $table, $value);
 		}
 
-		$query = $query . $columns . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
-
-		return (string) $query;
+		return (string) implode(";\n", $sql);
 	}
 }

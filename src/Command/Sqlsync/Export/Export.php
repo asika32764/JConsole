@@ -63,11 +63,16 @@ class Export extends JCommand
 	 */
 	public function configure()
 	{
-		$this->addOption(
-			array('s', 'sql'),
-			0,
-			'Use sql format to export'
-		);
+		$this
+			->addOption(
+				array('s', 'sql'),
+				0,
+				'Use sql format to export'
+			)->addOption(
+				array('a', 'all'),
+				0,
+				'All profiles'
+			);
 	}
 
 	/**
@@ -81,7 +86,14 @@ class Export extends JCommand
 
 		$model = new Schema;
 
-		$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
+		if ($this->getOption('a'))
+		{
+			$profiles = ProfileHelper::getAllProfiles();
+		}
+		else
+		{
+			$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
+		}
 
 		$config = Factory::getConfig();
 

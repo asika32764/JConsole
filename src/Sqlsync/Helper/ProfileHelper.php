@@ -9,6 +9,7 @@
 
 namespace Sqlsync\Helper;
 
+use Joomla\Filesystem\Folder;
 use Sqlsync\Factory;
 
 /**
@@ -38,6 +39,16 @@ abstract class ProfileHelper
 		$profile = self::getProfile();
 
 		return SQLSYNC_RESOURCE . '/' . $profile;
+	}
+
+	/**
+	 * getAllProfiles
+	 *
+	 * @return  array
+	 */
+	public static function getAllProfiles()
+	{
+		return Folder::folders(SQLSYNC_RESOURCE);
 	}
 
 	/**

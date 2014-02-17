@@ -56,7 +56,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * import
 	 *
-	 * @param $content
+	 * @param string $content
 	 *
 	 * @return bool|mixed
 	 */
@@ -97,7 +97,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * renameTable
 	 *
-	 * @param $table
+	 * @param array $table
 	 *
 	 * @return bool|mixed
 	 */
@@ -137,7 +137,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * addTable
 	 *
-	 * @param $table
+	 * @param array $table
 	 *
 	 * @return mixed
 	 */
@@ -146,8 +146,8 @@ class YamlImporter extends AbstractImporter
 		$tableList = $this->getTableList();
 		$name = ArrayHelper::getValue($table, 'name', array());
 
-        $indexes = ArrayHelper::getValue($table, 'index', array());
-        
+		$indexes = ArrayHelper::getValue($table, 'index', array());
+
 		if (in_array($name, $tableList))
 		{
 			return $name;
@@ -176,22 +176,22 @@ class YamlImporter extends AbstractImporter
 
 			$addColumns[] = "{$this->db->quoteName($column['Field'])} {$column['Type']}{$null}{$default}{$ai}{$comment}";
 		}
-        
-        // Add Primary Key
-        $primaryColumns = array();
-        
-        foreach ($indexes as $index)
-        {
-            if (ArrayHelper::getValue($index, 'Key_name') == 'PRIMARY')
-            {
-                $primaryColumns[] = $this->db->qn(ArrayHelper::getValue($index, 'Column_name'));
-            }
-        }
-        
-        if ($primaryColumns)
-        {
-            $addColumns[] = "PRIMARY KEY (" . implode(', ', $primaryColumns) . ")";
-        }
+
+		// Add Primary Key
+		$primaryColumns = array();
+
+		foreach ($indexes as $index)
+		{
+			if (ArrayHelper::getValue($index, 'Key_name') == 'PRIMARY')
+			{
+				$primaryColumns[] = $this->db->qn(ArrayHelper::getValue($index, 'Column_name'));
+			}
+		}
+
+		if ($primaryColumns)
+		{
+			$addColumns[] = "PRIMARY KEY (" . implode(', ', $primaryColumns) . ")";
+		}
 
 		$this->sql[] = $sql = "CREATE TABLE IF NOT EXISTS `{$name}` (\n  " . implode(",\n  ", $addColumns) . "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
@@ -205,8 +205,8 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * changeColumns
 	 *
-	 * @param $tableName
-	 * @param $columns
+	 * @param string $tableName
+	 * @param array  $columns
 	 *
 	 * @return bool
 	 */
@@ -243,9 +243,9 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * renameColumn
 	 *
-	 * @param $tableName
-	 * @param $columnName
-	 * @param $column
+	 * @param string $tableName
+	 * @param string $columnName
+	 * @param array  $column
 	 *
 	 * @return bool|mixed
 	 */
@@ -285,10 +285,10 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * addColumn
 	 *
-	 * @param $tableName
-	 * @param $columnName
-	 * @param $before
-	 * @param $column
+	 * @param string $tableName
+	 * @param string $columnName
+	 * @param string $before
+	 * @param array  $column
 	 *
 	 * @return bool
 	 */
@@ -320,9 +320,9 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * changeColumn
 	 *
-	 * @param $tableName
-	 * @param $columnName
-	 * @param $column
+	 * @param string $tableName
+	 * @param string $columnName
+	 * @param array  $column
 	 *
 	 * @return bool
 	 */
@@ -370,8 +370,8 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * dropColumns
 	 *
-	 * @param $tableName
-	 * @param $columns
+	 * @param string $tableName
+	 * @param array  $columns
 	 *
 	 * @return void
 	 */
@@ -397,8 +397,8 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * changeIndexes
 	 *
-	 * @param $tableName
-	 * @param $indexes
+	 * @param string $tableName
+	 * @param array  $indexes
 	 *
 	 * @return bool
 	 */
@@ -428,11 +428,11 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * changeIndex
 	 *
-	 * @param      $tableName
-	 * @param      $indexName
-	 * @param      $columns
-	 * @param      $indexes
-	 * @param bool $noDrop
+	 * @param string $tableName
+	 * @param string $indexName
+	 * @param array  $columns
+	 * @param array  $indexes
+	 * @param bool   $noDrop
 	 *
 	 * @return bool
 	 */
@@ -460,16 +460,22 @@ class YamlImporter extends AbstractImporter
 		else
 		{
 			$indexType = $index['Non_unique'] ? 'INDEX' : 'UNIQUE';
-            
-            $db = $this->db;
-            
-            $columns = array_map(
-                function($v) use($db)
-                {
-                    return $db->qn($v);
-                },
-                $columns
-            );
+
+			$db = $this->db;
+
+			$columns = array_map(
+				function($v) use($db)
+				{
+					$v = explode('(', $v);
+
+					$db->qn($v[0]);
+
+					$v = implode('(', $v);
+
+					return $v;
+				},
+				$columns
+			);
 
 			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD {$indexType} `{$indexName}` (" . implode(', ', $columns) . ")";
 		}
@@ -532,9 +538,9 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * changeDatas
 	 *
-	 * @param $tableName
-	 * @param $datas
-	 * @param $columns
+	 * @param string $tableName
+	 * @param array  $datas
+	 * @param array  $columns
 	 *
 	 * @return bool
 	 */
@@ -549,6 +555,12 @@ class YamlImporter extends AbstractImporter
 
 		$values = array();
 
+		// Clean
+		$this->sql[] = $sql = "TRUNCATE TABLE `{$tableName}`";
+
+		$this->execute($sql);
+
+		// Add
 		foreach ($datas as $data)
 		{
 			$data = (array) $data;
@@ -561,22 +573,16 @@ class YamlImporter extends AbstractImporter
 				$data
 			);
 
-			$values[] = implode(', ', $data);
+			$value = implode(', ', $data);
 
 			$this->rowCount++;
+
+			$this->sql[] = $sql = (string) sprintf("INSERT `%s` VALUES (%s)", $tableName, $value);
+
+			$this->execute($sql);
+
+			$this->analyze('Data', 'Inserted');
 		}
-
-		// Clean
-		$this->sql[] = $sql = "TRUNCATE TABLE `{$tableName}`";
-
-		$this->execute($sql);
-
-		// Add
-		$this->sql[] = $sql = (string) "INSERT INTO `{$tableName}` " . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
-
-		$this->execute($sql);
-
-		$this->analyze('Data', 'Inserted');
 	}
 
 	/**
@@ -601,7 +607,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * getColumnList
 	 *
-	 * @param $table
+	 * @param string $table
 	 *
 	 * @return mixed
 	 */
@@ -620,8 +626,8 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * getOldColumn
 	 *
-	 * @param $tableName
-	 * @param $columnName
+	 * @param string $tableName
+	 * @param string $columnName
 	 *
 	 * @return mixed
 	 */
@@ -635,7 +641,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * getOldIndexes
 	 *
-	 * @param $table
+	 * @param string $table
 	 *
 	 * @return mixed
 	 */
@@ -654,7 +660,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * getIndexesIndex
 	 *
-	 * @param $indexes
+	 * @param array $indexes
 	 *
 	 * @return array
 	 */
@@ -671,7 +677,14 @@ class YamlImporter extends AbstractImporter
 				$indexesIndex[$keyname] = array();
 			}
 
-			$indexesIndex[$keyname][] = $index['Column_name'];
+			$columnName = $index['Column_name'];
+
+			if (!empty($index['Sub_part']))
+			{
+				$columnName .= '(' . $index['Sub_part'] . ')';
+			}
+
+			$indexesIndex[$keyname][] = $columnName;
 		}
 
 		return $indexesIndex;
@@ -680,8 +693,8 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * analyze
 	 *
-	 * @param $schema
-	 * @param $action
+	 * @param string $schema
+	 * @param string $action
 	 *
 	 * @return bool
 	 */
@@ -702,7 +715,7 @@ class YamlImporter extends AbstractImporter
 	/**
 	 * execute
 	 *
-	 * @param $sql
+	 * @param string $sql
 	 *
 	 * @return bool|mixed
 	 */

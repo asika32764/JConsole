@@ -12,7 +12,7 @@ Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joom
 ## Installation via Composer
 
 ``` bash
-php composer.phar create-project asika/jconsole libraries/jconsole dev-master -s dev
+php composer.phar create-project asika/jconsole libraries/jconsole 1.0.*
 ```
 
 ## Getting started
