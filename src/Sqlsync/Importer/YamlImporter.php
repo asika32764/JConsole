@@ -549,6 +549,12 @@ class YamlImporter extends AbstractImporter
 
 		$values = array();
 
+		// Clean
+		$this->sql[] = $sql = "TRUNCATE TABLE `{$tableName}`";
+
+		$this->execute($sql);
+
+		// Add
 		foreach ($datas as $data)
 		{
 			$data = (array) $data;
@@ -561,22 +567,16 @@ class YamlImporter extends AbstractImporter
 				$data
 			);
 
-			$values[] = implode(', ', $data);
+			$value = implode(', ', $data);
 
 			$this->rowCount++;
+
+			$this->sql[] = $sql = (string) sprintf("INSERT `%s` VALUES (%s)", $tableName, $value);
+
+			$this->execute($sql);
+
+			$this->analyze('Data', 'Inserted');
 		}
-
-		// Clean
-		$this->sql[] = $sql = "TRUNCATE TABLE `{$tableName}`";
-
-		$this->execute($sql);
-
-		// Add
-		$this->sql[] = $sql = (string) "INSERT INTO `{$tableName}` " . $values = new \JDatabaseQueryElement("VALUES ()", $values, ")," . PHP_EOL . "(");
-
-		$this->execute($sql);
-
-		$this->analyze('Data', 'Inserted');
 	}
 
 	/**
