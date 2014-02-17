@@ -128,7 +128,7 @@ class YamlExporter extends AbstractExporter
 			unset($index['Model']);
 			unset($index['Collation']);
 			unset($index['Cardinality']);
-			unset($index['Sub_part']);
+			// unset($index['Sub_part']);
 			unset($index['Packed']);
 			unset($index['Index_type']);
 

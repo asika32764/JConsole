@@ -462,11 +462,17 @@ class YamlImporter extends AbstractImporter
 			$indexType = $index['Non_unique'] ? 'INDEX' : 'UNIQUE';
             
             $db = $this->db;
-            
+
             $columns = array_map(
                 function($v) use($db)
                 {
-                    return $db->qn($v);
+					$v = explode('(', $v);
+
+					$db->qn($v[0]);
+
+					$v = implode('(', $v);
+
+                    return $v;
                 },
                 $columns
             );
@@ -671,7 +677,14 @@ class YamlImporter extends AbstractImporter
 				$indexesIndex[$keyname] = array();
 			}
 
-			$indexesIndex[$keyname][] = $index['Column_name'];
+			$columnName = $index['Column_name'];
+
+			if (!empty($index['Sub_part']))
+			{
+				$columnName .= '(' . $index['Sub_part'] . ')';
+			}
+
+			$indexesIndex[$keyname][] = $columnName;
 		}
 
 		return $indexesIndex;
