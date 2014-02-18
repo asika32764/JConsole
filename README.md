@@ -12,8 +12,12 @@ Please see: https://github.com/asika32764/joomla-framework/tree/console/src/Joom
 ## Installation via Composer
 
 ``` bash
+cd your/joomla/path
+
 php composer.phar create-project asika/jconsole libraries/jconsole 1.0.*
 ```
+
+Then, remove `libraries/jconsole/.gitignore` if you want to track whole Joomla by Git, use root gitignore instead.
 
 ## Getting started
 
