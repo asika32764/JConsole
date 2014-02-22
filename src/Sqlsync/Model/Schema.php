@@ -206,7 +206,7 @@ class Schema extends \JModelDatabase
 	{
 		$ext = ($type == 'yaml') ? 'yml' : $type;
 
-		return $this->schemaPath . '/schema.' . $ext;
+		return ProfileHelper::getPath() . '/schema.' . $ext;
 	}
 
 	/**
