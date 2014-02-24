@@ -87,11 +87,17 @@ class YamlImporter extends AbstractImporter
 
 		$this->state->set('import.analyze', $this->analyze);
 
+		return true;
+	}
+
+	/**
+	 * Destructor. Write last import schema for debug.
+	 */
+	public function __destruct()
+	{
 		$sql = implode(";\n\n", $this->sql) . ';';
 
 		\JFile::write(JPATH_ROOT . '/tmp/sqlsync/last-import-schema.sql', $sql);
-
-		return true;
 	}
 
 	/**
@@ -468,7 +474,7 @@ class YamlImporter extends AbstractImporter
 				{
 					$v = explode('(', $v);
 
-					$db->qn($v[0]);
+					$v[0] = $db->qn($v[0]);
 
 					$v = implode('(', $v);
 
