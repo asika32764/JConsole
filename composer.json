@@ -1,7 +1,7 @@
 {
 	"name"             : "asika/jconsole",
 	"description"      : "Useful Cli tools for Joomla CMS",
-	"minimum-stability": "beta",
+	"minimum-stability": "stable",
 	"authors"          : [
 		{
 			"name" : "Simon Asika",
@@ -9,9 +9,8 @@
 		}
 	],
 	"require" : {
-		"asika/joomla-console" : "dev-master",
-		"symfony/yaml" : "2.*",
-		"verbalexpressions/php-verbal-expressions" : "dev-master"
+		"asika/joomla-console" : "1.*",
+		"symfony/yaml" : "2.*"
 	},
 	"autoload" : {
 		"psr-0" : {
