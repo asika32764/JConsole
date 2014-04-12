@@ -1,6 +1,6 @@
 <?php
 /**
- * Part of Windwalker project. 
+ * Part of JConsole project.
  *
  * @copyright  Copyright (C) 2011 - 2014 SMS Taiwan, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
@@ -18,6 +18,11 @@ use Joomla\Filesystem\Folder;
  */
 class ComposerInstaller
 {
+	/**
+	 * Property binFile.
+	 *
+	 * @var  string
+	 */
 	static protected $binFile = <<<BIN
 #!/usr/bin/env sh
 <?php
@@ -49,7 +54,7 @@ BIN;
 
 		if (!is_dir($resourceDir))
 		{
-			$io->write('Create jconsole folder: ' . $resourceDir);
+			$io->write('Create jconsole folder: ' . realpath($resourceDir));
 
 			define('JPATH_ROOT', realpath($path . '/../..'));
 
