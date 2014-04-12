@@ -13,8 +13,8 @@ table:
     '#__contentitem_tag_map': all
     '#__core_log_searches': all
     '#__extensions': all
-    '#__finder_filters': all
-    '#__finder_links': all
+    '#__finder_filters': cols
+    '#__finder_links': cols
     '#__finder_links_terms0': cols
     '#__finder_links_terms1': cols
     '#__finder_links_terms2': cols
@@ -37,7 +37,7 @@ table:
     '#__finder_terms_common': all
     '#__finder_tokens': cols
     '#__finder_tokens_aggregate': cols
-    '#__finder_types': all
+    '#__finder_types': cols
     '#__languages': all
     '#__menu': all
     '#__menu_types': all
@@ -58,7 +58,7 @@ table:
     '#__ucm_history': all
     '#__update_sites': all
     '#__update_sites_extensions': all
-    '#__updates': all
+    '#__updates': cols
     '#__user_keys': all
     '#__user_notes': all
     '#__user_profiles': all

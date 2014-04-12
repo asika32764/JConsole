@@ -52,13 +52,12 @@ class Track extends \JModelDatabase
 
 		if (!file_exists($this->file))
 		{
-			$buffer = '';
+			$buffer = file_get_contents($this->global);
 
 			\JFile::write($this->file, $buffer);
 		}
 
-		$track->loadFile($this->global, 'yaml')
-			->loadFile($this->file, 'yaml');
+		$track->loadFile($this->file, 'yaml');
 
 		return $track;
 	}
