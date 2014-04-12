@@ -10,7 +10,9 @@
 namespace Command\Sqlsync\Table\Sync;
 
 use JConsole\Command\JCommand;
+use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Model\Table;
+use Sqlsync\Factory;
 
 defined('JCONSOLE') or die;
 
@@ -59,7 +61,11 @@ class Sync extends JCommand
 	 */
 	public function configure()
 	{
-		// $this->addArgument();
+		$this->addOption(
+			array('a', 'all'),
+			0,
+			'All profiles'
+		);
 	}
 
 	/**
@@ -71,11 +77,27 @@ class Sync extends JCommand
 	{
 		$tableModel = new Table;
 
-		$tableModel->sync();
+		if ($this->getOption('a'))
+		{
+			$profiles = ProfileHelper::getAllProfiles();
+		}
+		else
+		{
+			$profiles = $this->input->args ? : array(ProfileHelper::getProfile());
+		}
 
-		$path = $tableModel->getState()->get('track.save.path');
+		$config = Factory::getConfig();
 
-		$this->out()->out('Sync all tracking status to: ' . $path);
+		foreach ($profiles as $profile)
+		{
+			$config->set('profile', $profile);
+
+			$tableModel->sync();
+
+			$path = $tableModel->getState()->get('track.save.path');
+
+			$this->out()->out('Sync all tracking status to: ' . $path);
+		}
 
 		return;
 	}
