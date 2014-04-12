@@ -48,6 +48,12 @@ class JConsole extends JoomlaConsole
 
 		parent::__construct($input, $config, $output);
 
+		// Make Windows no ANSI color
+		if (defined('PHP_WINDOWS_VERSION_BUILD'))
+		{
+			$this->input->set('no-ansi', true);
+		}
+
 		$descriptorHelper = $this->rootCommand->getChild('help')
 			->getDescriptor();
 
