@@ -109,6 +109,8 @@ class YamlImporter extends AbstractImporter
 	 */
 	public function renameTable($table)
 	{
+		$query = $this->db->getQuery(true);
+
 		$from    = (array) ArrayHelper::getValue($table, 'from', array());
 		$newName = ArrayHelper::getValue($table, 'name', array());
 
@@ -128,7 +130,7 @@ class YamlImporter extends AbstractImporter
 
 		if ($tableName)
 		{
-			$this->sql[] = $sql = 'RENAME TABLE ' . $tableName . ' TO ' . $newName;
+			$this->sql[] = $sql = 'RENAME TABLE ' . $query->qn($tableName) . ' TO ' . $query->qn($newName);
 
 			$this->execute($sql);
 
@@ -391,7 +393,7 @@ class YamlImporter extends AbstractImporter
 		{
 			if (!in_array($column, $newColumns))
 			{
-				$this->sql[] = $sql = "ALTER TABLE {$tableName} DROP {$column}";
+				$this->sql[] = $sql = "ALTER TABLE `{$tableName}` DROP `{$column}`";
 
 				$this->execute($sql);
 
