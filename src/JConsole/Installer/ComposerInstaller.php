@@ -24,7 +24,7 @@ class ComposerInstaller
 	 * @var  string
 	 */
 	static protected $binFile = <<<BIN
-#!/usr/bin/env sh
+#!/usr/bin/env php
 <?php
 
 include_once dirname(__DIR__) . '/libraries/jconsole/bin/console.php';
