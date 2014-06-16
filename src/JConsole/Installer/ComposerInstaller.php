@@ -49,6 +49,8 @@ BIN;
 
 		file_put_contents($path . '/../../cli/console', static::$binFile);
 
+		chmod($path . '/../../cli/console', 755);
+
 		// Resource dir
 		$resourceDir = $path . '/../../cli/jconsole';
 
