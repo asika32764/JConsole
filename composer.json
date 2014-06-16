@@ -10,7 +10,8 @@
 	],
 	"require" : {
 		"asika/joomla-console" : "1.*",
-		"symfony/yaml" : "2.*"
+		"symfony/yaml" : "2.*",
+		"joomla/filesystem" : "1.*"
 	},
 	"autoload" : {
 		"psr-0" : {
