@@ -13,6 +13,7 @@ use Joomla\Registry\Registry;
 use Sqlsync\Exporter\AbstractExporter;
 use Sqlsync\Helper\ProfileHelper;
 use Sqlsync\Importer\AbstractImporter;
+use Sqlsync\Query\MysqlQueryBuilder;
 use Symfony\Component\Yaml\Dumper;
 
 /**
@@ -40,6 +41,8 @@ class Schema extends \JModelDatabase
 		$this->schemaPath = ProfileHelper::getPath();
 
 		$this->backupPath = ProfileHelper::getTmpPath() . '/backups';
+
+		$this->createDatabase();
 	}
 
 	/**
@@ -55,8 +58,12 @@ class Schema extends \JModelDatabase
 	{
 		$expoter = AbstractExporter::getInstance($type);
 
+		$this->hook('pre-export');
+
 		/** @var $expoter AbstractExporter */
 		$content = $expoter->export($ignoreTrack, $prefixOnly);
+
+		$this->hook('post-export');
 
 		$result = $this->save($this->getPath($type), $content);
 
@@ -172,11 +179,34 @@ class Schema extends \JModelDatabase
 
 		$importer = AbstractImporter::getInstance($type);
 
+		$this->hook('pre-import');
+
 		$importer->import($schema);
+
+		$this->hook('post-import');
 
 		$this->state->set('import.analyze', $importer->getState()->get('import.analyze'));
 
 		return true;
+	}
+
+	/**
+	 * postImport
+	 *
+	 * @param string $hook
+	 *
+	 * @return  static
+	 */
+	protected function hook($hook)
+	{
+		$path = ProfileHelper::getPath() . '/' . $hook . '.php';
+
+		if (is_file($path))
+		{
+			include $path;
+		}
+
+		return $this;
 	}
 
 	/**
@@ -232,5 +262,52 @@ class Schema extends \JModelDatabase
 			// Return array
 			return $d;
 		}
+	}
+
+	/**
+	 * createDatabase
+	 *
+	 * @param string $dbname
+	 *
+	 * @return  static
+	 */
+	protected function createDatabase($dbname = null)
+	{
+		$dbname = \JFactory::getConfig()->get('db');
+
+		$this->db->setQuery('CREATE DATABASE IF NOT EXISTS `' . $dbname . '` CHARACTER SET `utf8`')->execute();
+
+		$this->db->select($dbname);
+
+		return $this;
+	}
+
+	/**
+	 * dropTable
+	 *
+	 * @param string $table
+	 *
+	 * @return  static
+	 */
+	public function dropTable($table)
+	{
+		$this->db->dropTable($table);
+
+		return $this;
+	}
+
+	/**
+	 * dropColumn
+	 *
+	 * @param string $table
+	 * @param string $column
+	 *
+	 * @return  static
+	 */
+	public function dropColumn($table, $column)
+	{
+		$this->db->setQuery(MysqlQueryBuilder::dropColumn($table, $column));
+
+		return $this;
 	}
 }
