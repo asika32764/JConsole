@@ -306,7 +306,7 @@ class Schema extends \JModelDatabase
 	 */
 	public function dropColumn($table, $column)
 	{
-		$this->db->setQuery(MysqlQueryBuilder::dropColumn($table, $column));
+		$this->db->setQuery(MysqlQueryBuilder::dropColumn($table, $column))->execute();
 
 		return $this;
 	}
