@@ -313,9 +313,18 @@ class YamlImporter extends AbstractImporter
 			$comment = $column['Comment'] ? 'COMMENT ' . $this->db->quote($column['Comment']) : '';
 
 			$position = $before ? 'AFTER ' . $before : 'FIRST';
+			
+			if ($column['Default'] == 'CURRENT_TIMESTAMP')
+			{
+				$default = ' DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
+			}
+			else
+			{
+				$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+			}
 
 			// Build sql
-			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD `{$columnName}` {$column['Type']} {$null} {$ai} {$comment} {$position}";
+			$this->sql[] = $sql = "ALTER TABLE `{$tableName}` ADD `{$columnName}` {$column['Type']} {$null} {$default} {$ai} {$comment} {$position}";
 
 			$this->execute($sql);
 
