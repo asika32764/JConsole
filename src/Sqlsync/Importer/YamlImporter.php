@@ -179,7 +179,7 @@ class YamlImporter extends AbstractImporter
 			}
 			else
 			{
-				$default = isset($column['Default']) ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+				$default = is_null($column['Default']) ? '' : ' DEFAULT ' . $this->db->quote($column['Default']);
 			}
 
 			$addColumns[] = "{$this->db->quoteName($column['Field'])} {$column['Type']}{$null}{$default}{$ai}{$comment}";
@@ -320,7 +320,7 @@ class YamlImporter extends AbstractImporter
 			}
 			else
 			{
-				$default = $column['Default'] ? ' DEFAULT ' . $this->db->quote($column['Default']) : '';
+				$default = is_null($column['Default']) ? '' : ' DEFAULT ' . $this->db->quote($column['Default']);
 			}
 
 			// Build sql
